@@ -1,418 +1,391 @@
 //
-// Index support code for Mini-XML, a small XML file parsing library.
+// Mini-XML的索引支持代码，一个小型的XML文件解析库。
 //
 // https://www.msweet.org/mxml
 //
-// Copyright © 2003-2024 by Michael R Sweet.
+// 版权所有 © 2003-2024 Michael R. Sweet。
 //
-// Licensed under Apache License v2.0.  See the file "LICENSE" for more
-// information.
+// 根据Apache License v2.0许可证。有关更多信息，请参见“LICENSE”文件。
 //
 
 #include "mxml-private.h"
 
 
 //
-// Local functions...
+// 本地函数...
 //
 
-static int	index_compare(mxml_index_t *ind, mxml_node_t *first, mxml_node_t *second);
-static int	index_find(mxml_index_t *ind, const char *element, const char *value, mxml_node_t *node);
-static void	index_sort(mxml_index_t *ind, int left, int right);
+static int index_compare(mxml_index_t *ind, mxml_node_t *first, mxml_node_t *second);
+static int index_find(mxml_index_t *ind, const char *element, const char *value, mxml_node_t *node);
+static void index_sort(mxml_index_t *ind, int left, int right);
 
 
 //
-// 'mxmlIndexDelete()' - Delete an index.
+// 'mxmlIndexDelete（）' - 删除索引。
 //
 
-void
-mxmlIndexDelete(mxml_index_t *ind)	// I - Index to delete
+void mxmlIndexDelete(mxml_index_t *ind)	// I - 要删除的索引
 {
-  // Range check input..
-  if (!ind)
-    return;
+    // 范围检查输入..
+    if (!ind)
+        return;
 
-  // Free memory...
-  _mxml_strfree(ind->attr);
-  free(ind->nodes);
-  free(ind);
+    // 释放内存...
+    _mxml_strfree(ind->attr);
+    free(ind->nodes);
+    free(ind);
 }
 
 
 //
-// 'mxmlIndexEnum()' - Return the next node in the index.
+// 'mxmlIndexEnum（）' - 返回索引中的下一个节点。
 //
-// This function returns the next node in index `ind`.
+// 此函数返回索引“ind”中的下一个节点。
 //
-// You should call @link mxmlIndexReset@ prior to using this function to get
-// the first node in the index.  Nodes are returned in the sorted order of the
-// index.
+// 在使用此函数之前，应先调用@link mxmlIndexReset@以获取索引中的第一个节点。
+// 节点按索引的排序顺序返回。
 //
 
-mxml_node_t *				// O - Next node or `NULL` if there is none
-mxmlIndexEnum(mxml_index_t *ind)	// I - Index to enumerate
+mxml_node_t * mxmlIndexEnum(mxml_index_t *ind)	// I - 要枚举的索引
 {
-  // Range check input...
-  if (!ind)
-    return (NULL);
+    // 范围检查输入...
+    if (!ind)
+        return (NULL);
 
-  // Return the next node...
-  if (ind->cur_node < ind->num_nodes)
-    return (ind->nodes[ind->cur_node ++]);
-  else
-    return (NULL);
+    // 返回下一个节点...
+    if (ind->cur_node < ind->num_nodes)
+        return (ind->nodes[ind->cur_node++]);
+    else
+        return (NULL);
 }
 
 
 //
-// 'mxmlIndexFind()' - Find the next matching node.
+// 'mxmlIndexFind（）' - 查找下一个匹配的节点。
 //
-// This function finds the next matching node in index `ind`.
+// 此函数在索引“ind”中查找下一个匹配的节点。
 //
-// You should call @link mxmlIndexReset@ prior to using this function for
-// the first time with a particular set of `element` and `value`
-// strings.  Passing `NULL` for both `element` and `value` is equivalent
-// to calling @link mxmlIndexEnum@.
+// 在首次使用此函数时，应先调用@link mxmlIndexReset@，并使用特定的“element”和“value”字符串。
+// 如果“element”和“value”都为NULL，则等效于调用@link mxmlIndexEnum@。
 //
 
-mxml_node_t *				// O - Node or `NULL` if none found
-mxmlIndexFind(mxml_index_t *ind,	// I - Index to search
-              const char   *element,	// I - Element name to find, if any
-	      const char   *value)	// I - Attribute value, if any
+mxml_node_t * mxmlIndexFind(mxml_index_t *ind,	// I - 要搜索的索引
+                            const char *element,	// I - 要查找的元素名称，如果没有则为NULL
+                            const char *value)	// I - 属性值，如果没有则为NULL
 {
-  int		diff,			// Difference between names
-		current,		// Current entity in search
-		first,			// First entity in search
-		last;			// Last entity in search
+    int diff,		// 名称之间的差异
+        current,	// 搜索中的当前实体
+        first,		// 搜索中的第一个实体
+        last;		// 搜索中的最后一个实体
 
 
-  MXML_DEBUG("mxmlIndexFind(ind=%p, element=\"%s\", value=\"%s\")\n", ind, element ? element : "(null)", value ? value : "(null)");
+    MXML_DEBUG("mxmlIndexFind（ind =％p，element = \“％s \”，value = \“％s \”）\n", ind, element ? element : "（null）", value ? value : "（null）");
 
-  // Range check input...
-  if (!ind || (!ind->attr && value))
-  {
-    MXML_DEBUG("mxmlIndexFind: Returning NULL, ind->attr=\"%s\"...\n", ind && ind->attr ? ind->attr : "(null)");
-    return (NULL);
-  }
-
-  // If both element and value are NULL, just enumerate the nodes in the index...
-  if (!element && !value)
-    return (mxmlIndexEnum(ind));
-
-  // If there are no nodes in the index, return NULL...
-  if (!ind->num_nodes)
-  {
-    MXML_DEBUG("mxmlIndexFind: Returning NULL, no nodes...\n");
-    return (NULL);
-  }
-
-  // If cur_node == 0, then find the first matching node...
-  if (ind->cur_node == 0)
-  {
-    // Find the first node using a modified binary search algorithm...
-    first = 0;
-    last  = ind->num_nodes - 1;
-
-    MXML_DEBUG("mxmlIndexFind: Find first time, num_nodes=%lu...\n", (unsigned long)ind->num_nodes);
-
-    while ((last - first) > 1)
+    // 范围检查输入...
+    if (!ind || (!ind->attr && value))
     {
-      current = (first + last) / 2;
-
-      MXML_DEBUG("mxmlIndexFind: first=%d, last=%d, current=%d\n", first, last, current);
-
-      if ((diff = index_find(ind, element, value, ind->nodes[current])) == 0)
-      {
-        // Found a match, move back to find the first...
-        MXML_DEBUG("mxmlIndexFind: match.\n");
-
-        while (current > 0 && !index_find(ind, element, value, ind->nodes[current - 1]))
-	  current --;
-
-        MXML_DEBUG("mxmlIndexFind: Returning first match=%d\n", current);
-
-        // Return the first match and save the index to the next...
-        ind->cur_node = current + 1;
-
-	return (ind->nodes[current]);
-      }
-      else if (diff < 0)
-      {
-	last = current;
-      }
-      else
-      {
-	first = current;
-      }
-
-      MXML_DEBUG("mxmlIndexFind: diff=%d\n", diff);
+        MXML_DEBUG("mxmlIndexFind：返回NULL，ind->attr = \“％s \”...\n", ind && ind->attr ? ind->attr : "（null）");
+        return (NULL);
     }
 
-    // If we get this far, then we found exactly 0 or 1 matches...
-    for (current = first; current <= last; current ++)
-    {
-      if (!index_find(ind, element, value, ind->nodes[current]))
-      {
-        // Found exactly one (or possibly two) match...
-	MXML_DEBUG("mxmlIndexFind: Returning only match %d...\n", current);
-	ind->cur_node = current + 1;
+    // 如果element和value都为NULL，则只枚举索引中的节点...
+    if (!element && !value)
+        return (mxmlIndexEnum(ind));
 
-	return (ind->nodes[current]);
-      }
+    // 如果索引中没有节点，则返回NULL...
+    if (!ind->num_nodes)
+    {
+        MXML_DEBUG("mxmlIndexFind：返回NULL，无节点...\n");
+        return (NULL);
     }
 
-    // No matches...
+    // 如果cur_node == 0，则查找第一个匹配的节点...
+    if (ind->cur_node == 0)
+    {
+        // 使用修改过的二分搜索算法找到第一个节点...
+        first = 0;
+        last = ind->num_nodes - 1;
+
+        MXML_DEBUG("mxmlIndexFind：第一次查找，num_nodes =％lu...\n", (unsigned long)ind->num_nodes);
+
+        while ((last - first) > 1)
+        {
+            current = (first + last) / 2;
+
+            MXML_DEBUG("mxmlIndexFind：first =％d，last =％d，current =％d\n", first, last, current);
+
+            if ((diff = index_find(ind, element, value, ind->nodes[current])) == 0)
+            {
+                // 找到匹配项，返回到找到第一个的位置...
+                MXML_DEBUG("mxmlIndexFind：匹配。\n");
+
+                while (current > 0 && !index_find(ind, element, value, ind->nodes[current - 1]))
+                    current--;
+
+                MXML_DEBUG("mxmlIndexFind：返回第一个匹配项=％d\n", current);
+
+                // 返回第一个匹配项并保存到下一个的索引...
+                ind->cur_node = current + 1;
+
+                return (ind->nodes[current]);
+            }
+            else if (diff < 0)
+            {
+                last = current;
+            }
+            else
+            {
+                first = current;
+            }
+
+            MXML_DEBUG("mxmlIndexFind：diff =％d\n", diff);
+        }
+
+        // 如果走到这一步，则找到了0个或1个匹配项...
+        for (current = first; current <= last; current++)
+        {
+            if (!index_find(ind, element, value, ind->nodes[current]))
+            {
+                // 找到了一个（或可能两个）匹配项...
+                MXML_DEBUG("mxmlIndexFind：返回唯一匹配项％d...\n", current);
+                ind->cur_node = current + 1;
+
+                return (ind->nodes[current]);
+            }
+        }
+
+        // 没有匹配项...
+        ind->cur_node = ind->num_nodes;
+        MXML_DEBUG("mxmlIndexFind：返回NULL...\n");
+        return (NULL);
+    }
+    else if (ind->cur_node < ind->num_nodes && !index_find(ind, element, value, ind->nodes[ind->cur_node]))
+    {
+        // 返回下一个匹配的节点...
+        MXML_DEBUG("mxmlIndexFind：返回下一个匹配项％lu...\n", (unsigned long)ind->cur_node);
+        return (ind->nodes[ind->cur_node++]);
+    }
+
+    // 如果走到这一步，那么我们没有匹配项...
     ind->cur_node = ind->num_nodes;
-    MXML_DEBUG("mxmlIndexFind: Returning NULL...\n");
+
+    MXML_DEBUG("mxmlIndexFind：返回NULL...\n");
     return (NULL);
-  }
-  else if (ind->cur_node < ind->num_nodes && !index_find(ind, element, value, ind->nodes[ind->cur_node]))
-  {
-    // Return the next matching node...
-    MXML_DEBUG("mxmlIndexFind: Returning next match %lu...\n", (unsigned long)ind->cur_node);
-    return (ind->nodes[ind->cur_node ++]);
-  }
-
-  // If we get this far, then we have no matches...
-  ind->cur_node = ind->num_nodes;
-
-  MXML_DEBUG("mxmlIndexFind: Returning NULL...\n");
-  return (NULL);
 }
 
 
 //
-// 'mxmlIndexGetCount()' - Get the number of nodes in an index.
+// 'mxmlIndexGetCount（）' - 获取索引中的节点数。
 //
 
-size_t					// I - Number of nodes in index
-mxmlIndexGetCount(mxml_index_t *ind)	// I - Index of nodes
+size_t mxmlIndexGetCount(mxml_index_t *ind)	// I - 节点索引
 {
-  // Range check input...
-  if (!ind)
+    // 范围检查输入...
+    if (!ind)
+        return (0);
+
+    // 返回索引中的节点数...
+    return (ind->num_nodes);
+}
+
+
+//
+// 'mxmlIndexNew（）' - 创建一个新索引。
+//
+// 此函数为XML树“node”创建一个新索引。
+//
+// 索引将包含包含指定元素和/或属性的所有节点。如果“element”和“attr”都为NULL，则索引将包含节点树中元素的排序列表。
+// 节点按元素名称排序，如果“attr”参数不为NULL，则按属性值排序。
+//
+
+mxml_index_t * mxmlIndexNew(mxml_node_t *node,		// I - XML节点树
+                            const char *element,	// I - 要索引的元素或NULL以获取所有
+                            const char *attr)		// I - 要索引的属性或NULL以获取所有
+{
+    mxml_index_t *ind;		// 新索引
+    mxml_node_t **temp;		// 临时节点指针数组
+    mxml_node_t *current;	// 索引中的当前节点
+
+
+    // 范围检查输入...
+    MXML_DEBUG("mxmlIndexNew（node =％p，element = \“％s \”，attr = \“％s \”）\n", node, element ? element : "（null）", attr ? attr : "（null）");
+
+    if (!node)
+        return (NULL);
+
+    // 创建一个新索引...
+    if ((ind = calloc(1, sizeof(mxml_index_t))) == NULL)
+        return (NULL);
+
+    if (attr)
+    {
+        if ((ind->attr = _mxml_strcopy(attr)) == NULL)
+        {
+            free(ind);
+            return (NULL);
+        }
+    }
+
+    if (!element && !attr)
+        current = node;
+    else
+        current = mxmlFindElement(node, node, element, attr, NULL, MXML_DESCEND_ALL);
+
+    while (current)
+    {
+        if (ind->num_nodes >= ind->alloc_nodes)
+        {
+            if ((temp = realloc(ind->nodes, (ind->alloc_nodes + 64) * sizeof(mxml_node_t *))) == NULL)
+            {
+                // 无法为索引分配内存，因此中止...
+                mxmlIndexDelete(ind);
+                return (NULL);
+            }
+
+            ind->nodes = temp;
+            ind->alloc_nodes += 64;
+        }
+
+        ind->nodes[ind->num_nodes++] = current;
+
+        current = mxmlFindElement(current, node, element, attr, NULL, MXML_DESCEND_ALL);
+    }
+
+    // 根据搜索条件对节点进行排序...
+    if (ind->num_nodes > 1)
+        index_sort(ind, 0, ind->num_nodes - 1);
+
+    // 返回新索引...
+    return (ind);
+}
+
+
+//
+// 'mxmlIndexReset（）' - 重置索引中的枚举/查找指针并返回索引中的第一个节点。
+//
+// 此函数重置索引“ind”中的枚举/查找指针，并在首次使用@link mxmlIndexEnum@或@link mxmlIndexFind@之前调用。
+//
+
+mxml_node_t * mxmlIndexReset(mxml_index_t *ind)	// I - 要重置的索引
+{
+    MXML_DEBUG("mxmlIndexReset（ind =％p）\n", ind);
+
+    // 范围检查输入...
+    if (!ind)
+        return (NULL);
+
+    // 将索引设置为第一个元素...
+    ind->cur_node = 0;
+
+    // 返回第一个节点...
+    if (ind->num_nodes)
+        return (ind->nodes[0]);
+    else
+        return (NULL);
+}
+
+
+//
+// 'index_compare（）' - 比较两个节点。
+//
+
+static int index_compare(mxml_index_t *ind, mxml_node_t *first, mxml_node_t *second)
+{
+    int diff;		// 差异
+
+
+    // 检查元素名称...
+    if ((diff = strcmp(first->value.element.name, second->value.element.name)) != 0)
+        return (diff);
+
+    // 检查属性值...
+    if (ind->attr)
+    {
+        if ((diff = strcmp(mxmlElementGetAttr(first, ind->attr), mxmlElementGetAttr(second, ind->attr))) != 0)
+            return (diff);
+    }
+
+    // 没有差异，返回0...
     return (0);
-
-  // Return the number of nodes in the index...
-  return (ind->num_nodes);
 }
 
 
 //
-// 'mxmlIndexNew()' - Create a new index.
-//
-// This function creates a new index for XML tree `node`.
-//
-// The index will contain all nodes that contain the named element and/or
-// attribute.  If both `element` and `attr` are `NULL`, then the index will
-// contain a sorted list of the elements in the node tree.  Nodes are
-// sorted by element name and optionally by attribute value if the `attr`
-// argument is not `NULL`.
+// 'index_find（）' - 将节点与索引值进行比较。
 //
 
-mxml_index_t *				// O - New index
-mxmlIndexNew(mxml_node_t *node,		// I - XML node tree
-             const char  *element,	// I - Element to index or `NULL` for all
-             const char  *attr)		// I - Attribute to index or `NULL` for none
+static int index_find(mxml_index_t *ind, const char *element, const char *value, mxml_node_t *node)
 {
-  mxml_index_t	*ind;			// New index
-  mxml_node_t	*current,		// Current node in index
-  		**temp;			// Temporary node pointer array
+    int diff;		// 差异
 
 
-  // Range check input...
-  MXML_DEBUG("mxmlIndexNew(node=%p, element=\"%s\", attr=\"%s\")\n", node, element ? element : "(null)", attr ? attr : "(null)");
-
-  if (!node)
-    return (NULL);
-
-  // Create a new index...
-  if ((ind = calloc(1, sizeof(mxml_index_t))) == NULL)
-    return (NULL);
-
-  if (attr)
-  {
-    if ((ind->attr = _mxml_strcopy(attr)) == NULL)
+    // 检查元素名称...
+    if (element)
     {
-      free(ind);
-      return (NULL);
-    }
-  }
-
-  if (!element && !attr)
-    current = node;
-  else
-    current = mxmlFindElement(node, node, element, attr, NULL, MXML_DESCEND_ALL);
-
-  while (current)
-  {
-    if (ind->num_nodes >= ind->alloc_nodes)
-    {
-      if ((temp = realloc(ind->nodes, (ind->alloc_nodes + 64) * sizeof(mxml_node_t *))) == NULL)
-      {
-        // Unable to allocate memory for the index, so abort...
-        mxmlIndexDelete(ind);
-	return (NULL);
-      }
-
-      ind->nodes       = temp;
-      ind->alloc_nodes += 64;
+        if ((diff = strcmp(element, node->value.element.name)) != 0)
+            return (diff);
     }
 
-    ind->nodes[ind->num_nodes ++] = current;
-
-    current = mxmlFindElement(current, node, element, attr, NULL, MXML_DESCEND_ALL);
-  }
-
-  // Sort nodes based upon the search criteria...
-  if (ind->num_nodes > 1)
-    index_sort(ind, 0, ind->num_nodes - 1);
-
-  // Return the new index...
-  return (ind);
-}
-
-
-//
-// 'mxmlIndexReset()' - Reset the enumeration/find pointer in the index and
-//                      return the first node in the index.
-//
-// This function resets the enumeration/find pointer in index `ind` and should
-// be called prior to using @link mxmlIndexEnum@ or @link mxmlIndexFind@ for the
-// first time.
-//
-
-mxml_node_t *				// O - First node or `NULL` if there is none
-mxmlIndexReset(mxml_index_t *ind)	// I - Index to reset
-{
-  MXML_DEBUG("mxmlIndexReset(ind=%p)\n", ind);
-
-  // Range check input...
-  if (!ind)
-    return (NULL);
-
-  // Set the index to the first element...
-  ind->cur_node = 0;
-
-  // Return the first node...
-  if (ind->num_nodes)
-    return (ind->nodes[0]);
-  else
-    return (NULL);
-}
-
-
-//
-// 'index_compare()' - Compare two nodes.
-//
-
-static int				// O - Result of comparison
-index_compare(mxml_index_t *ind,	// I - Index
-              mxml_node_t  *first,	// I - First node
-              mxml_node_t  *second)	// I - Second node
-{
-  int	diff;				// Difference
-
-
-  // Check the element name...
-  if ((diff = strcmp(first->value.element.name, second->value.element.name)) != 0)
-    return (diff);
-
-  // Check the attribute value...
-  if (ind->attr)
-  {
-    if ((diff = strcmp(mxmlElementGetAttr(first, ind->attr), mxmlElementGetAttr(second, ind->attr))) != 0)
-      return (diff);
-  }
-
-  // No difference, return 0...
-  return (0);
-}
-
-
-//
-// 'index_find()' - Compare a node with index values.
-//
-
-static int				// O - Result of comparison
-index_find(mxml_index_t *ind,		// I - Index
-           const char   *element,	// I - Element name or `NULL`
-	   const char   *value,		// I - Attribute value or `NULL`
-           mxml_node_t  *node)		// I - Node
-{
-  int	diff;				// Difference
-
-
-  // Check the element name...
-  if (element)
-  {
-    if ((diff = strcmp(element, node->value.element.name)) != 0)
-      return (diff);
-  }
-
-  // Check the attribute value...
-  if (value)
-  {
-    if ((diff = strcmp(value, mxmlElementGetAttr(node, ind->attr))) != 0)
-      return (diff);
-  }
-
-  // No difference, return 0...
-  return (0);
-}
-
-
-//
-// 'index_sort()' - Sort the nodes in the index...
-//
-// This function implements the classic quicksort algorithm...
-//
-
-static void
-index_sort(mxml_index_t *ind,		// I - Index to sort
-           int          left,		// I - Left node in partition
-	   int          right)		// I - Right node in partition
-{
-  mxml_node_t	*pivot,			// Pivot node
-		*temp;			// Swap node
-  int		templ,			// Temporary left node
-		tempr;			// Temporary right node
-
-
-  // Loop until we have sorted all the way to the right...
-  do
-  {
-    // Sort the pivot in the current partition...
-    pivot = ind->nodes[left];
-
-    for (templ = left, tempr = right; templ < tempr;)
+    // 检查属性值...
+    if (value)
     {
-      // Move left while left node <= pivot node...
-      while ((templ < right) && index_compare(ind, ind->nodes[templ], pivot) <= 0)
-	templ ++;
-
-      // Move right while right node > pivot node...
-      while ((tempr > left) && index_compare(ind, ind->nodes[tempr], pivot) > 0)
-	tempr --;
-
-      // Swap nodes if needed...
-      if (templ < tempr)
-      {
-	temp              = ind->nodes[templ];
-	ind->nodes[templ] = ind->nodes[tempr];
-	ind->nodes[tempr] = temp;
-      }
+        if ((diff = strcmp(value, mxmlElementGetAttr(node, ind->attr))) != 0)
+            return (diff);
     }
 
-    // When we get here, the right (tempr) node is the new position for the pivot node...
-    if (index_compare(ind, pivot, ind->nodes[tempr]) > 0)
-    {
-      ind->nodes[left]  = ind->nodes[tempr];
-      ind->nodes[tempr] = pivot;
-    }
+    // 没有差异，返回0...
+    return (0);
+}
 
-    // Recursively sort the left partition as needed...
-    if (left < (tempr - 1))
-      index_sort(ind, left, tempr - 1);
-  }
-  while (right > (left = tempr + 1));
+
+//
+// 'index_sort（）' - 对索引中的节点进行排序...
+//
+// 此函数实现了经典的快速排序算法...
+//
+
+static void index_sort(mxml_index_t *ind, int left, int right)
+{
+    mxml_node_t *pivot,		// 枢轴节点
+        *temp;			// 交换节点
+    int templ,			// 临时左节点
+        tempr;			// 临时右节点
+
+
+    // 循环直到我们完全排序到右边...
+    do
+    {
+        // 在当前分区中对枢轴进行排序...
+        pivot = ind->nodes[left];
+
+        for (templ = left, tempr = right; templ < tempr;)
+        {
+            // 当左节点<=枢轴节点时向左移动...
+            while ((templ < right) && index_compare(ind, ind->nodes[templ], pivot) <= 0)
+                templ++;
+
+            // 当右节点>枢轴节点时向右移动...
+            while ((tempr > left) && index_compare(ind, ind->nodes[tempr], pivot) > 0)
+                tempr--;
+
+            // 如果需要，交换节点...
+            if (templ < tempr)
+            {
+                temp = ind->nodes[templ];
+                ind->nodes[templ] = ind->nodes[tempr];
+                ind->nodes[tempr] = temp;
+            }
+        }
+
+        // 当我们到达这里时，右侧（tempr）节点是枢轴节点的新位置...
+        if (index_compare(ind, pivot, ind->nodes[tempr]) > 0)
+        {
+            ind->nodes[left] = ind->nodes[tempr];
+            ind->nodes[tempr] = pivot;
+        }
+
+        // 根据需要递归排序左分区...
+        if (left < (tempr - 1))
+            index_sort(ind, left, tempr - 1);
+    } while (right > (left = tempr + 1));
 }

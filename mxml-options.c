@@ -1,68 +1,61 @@
+
 //
-// Options functions for Mini-XML, a small XML file parsing library.
+// Mini-XML的选项函数，一个小型的XML文件解析库。
 //
 // https://www.msweet.org/mxml
 //
-// Copyright © 2003-2024 by Michael R Sweet.
+// 版权所有 © 2003-2024 Michael R Sweet。
 //
-// Licensed under Apache License v2.0.  See the file "LICENSE" for more
-// information.
+// 根据Apache许可证v2.0许可。有关更多信息，请参见“LICENSE”文件。
 //
 
 #include "mxml-private.h"
 
 
 //
-// 'mxmlOptionsDelete()' - Free load/save options.
+// 'mxmlOptionsDelete（）' - 释放加载/保存选项。
 //
 
 void
 mxmlOptionsDelete(
-    mxml_options_t *options)		// I - Options
+    mxml_options_t *options)		// 输入 - 选项
 {
   free(options);
 }
 
 
 //
-// 'mxmlOptionsNew()' - Allocate load/save options.
+// 'mxmlOptionsNew（）' - 分配加载/保存选项。
 //
-// This function creates a new set of load/save options to use with the
-// @link mxmlLoadFd@, @link mxmlLoadFile@, @link mxmlLoadFilename@,
-// @link mxmlLoadIO@, @link mxmlLoadString@, @link mxmlSaveAllocString@,
-// @link mxmlSaveFd@, @link mxmlSaveFile@, @link mxmlSaveFilename@,
-// @link mxmlSaveIO@, and @link mxmlSaveString@ functions.  Options can be
-// reused for multiple calls to these functions and should be freed using the
-// @link mxmlOptionsDelete@ function.
+// 此函数创建一组新的加载/保存选项，用于@mxmlLoadFd@、@mxmlLoadFile@、@mxmlLoadFilename@、
+// @mxmlLoadIO@、@mxmlLoadString@、@mxmlSaveAllocString@、@mxmlSaveFd@、@mxmlSaveFile@、
+// @mxmlSaveFilename@、@mxmlSaveIO@和@mxmlSaveString@函数。选项可以在多次调用这些函数时重用，
+// 并且应使用@mxmlOptionsDelete@函数释放。
 //
-// The default load/save options load values using the constant type
-// `MXML_TYPE_TEXT` and save XML data with a wrap margin of 72 columns.
-// The various `mxmlOptionsSet` functions are used to change the defaults,
-// for example:
+// 默认的加载/保存选项使用常量类型`MXML_TYPE_TEXT`加载值，并使用72列的换行边距保存XML数据。
+// 可以使用各种`mxmlOptionsSet`函数更改默认值，例如：
 //
 // ```c
 // mxml_options_t *options = mxmlOptionsNew();
 //
-// /* Load values as opaque strings */
+// /* 将值加载为不透明字符串 */
 // mxmlOptionsSetTypeValue(options, MXML_TYPE_OPAQUE);
 // ```
 //
-// Note: The most common programming error when using the Mini-XML library is
-// to load an XML file using the `MXML_TYPE_TEXT` node type, which returns
-// inline text as a series of whitespace-delimited words, instead of using the
-// `MXML_TYPE_OPAQUE` node type which returns the inline text as a single string
-// (including whitespace).
+// 注意：使用Mini-XML库时最常见的编程错误是使用`MXML_TYPE_TEXT`节点类型加载XML文件，
+// 该类型将内联文本作为一系列以空格分隔的单词返回，而不是使用`MXML_TYPE_OPAQUE`节点类型，
+// 该类型将内联文本作为一个字符串返回（包括空格）。
 //
 
-mxml_options_t *			// O - Options
+mxml_options_t *			// 输出 - 选项
 mxmlOptionsNew(void)
 {
-  mxml_options_t *options;		// Options
+  mxml_options_t *options;		// 选项
 
 
   if ((options = (mxml_options_t *)calloc(1, sizeof(mxml_options_t))) != NULL)
   {
-    // Set default values...
+    // 设置默认值...
     options->type_value = MXML_TYPE_TEXT;
     options->wrap       = 72;
 
@@ -80,23 +73,21 @@ mxmlOptionsNew(void)
 
 
 //
-// 'mxmlOptionsSetCustomCallbacks()' - Set the custom data callbacks.
+// 'mxmlOptionsSetCustomCallbacks（）' - 设置自定义数据回调。
 //
-// This function sets the callbacks that are used for loading and saving custom
-// data types. The load callback `load_cb` accepts the callback data pointer
-// `cbdata`, a node pointer, and a data string and returns `true` on success and
-// `false` on error, for example:
+// 此函数设置用于加载和保存自定义数据类型的回调。加载回调`load_cb`接受回调数据指针`cbdata`、
+// 节点指针和数据字符串，并在成功时返回`true`，错误时返回`false`，例如：
 //
 // ```c
 // typedef struct
 // {
-//   unsigned year,    /* Year */
-//            month,   /* Month */
-//            day,     /* Day */
-//            hour,    /* Hour */
-//            minute,  /* Minute */
-//            second;  /* Second */
-//   time_t   unix;    /* UNIX time */
+//   unsigned year,    /* 年份 */
+//            month,   /* 月份 */
+//            day,     /* 日期 */
+//            hour,    /* 小时 */
+//            minute,  /* 分钟 */
+//            second;  /* 秒钟 */
+//   time_t   unix;    /* UNIX时间 */
 // } iso_date_time_t;
 //
 // void
@@ -111,29 +102,29 @@ mxmlOptionsNew(void)
 //   iso_date_time_t *dt;
 //   struct tm tmdata;
 //
-//   /* Allocate custom data structure ... */
+//   /* 分配自定义数据结构... */
 //   dt = calloc(1, sizeof(iso_date_time_t));
 //
-//   /* Parse the data string... */
+//   /* 解析数据字符串... */
 //   if (sscanf(data, "%u-%u-%uT%u:%u:%uZ", &(dt->year), &(dt->month),
 //              &(dt->day), &(dt->hour), &(dt->minute), &(dt->second)) != 6)
 //   {
-//     /* Unable to parse date and time numbers... */
+//     /* 无法解析日期和时间数字... */
 //     free(dt);
 //     return (false);
 //   }
 //
-//   /* Range check values... */
+//   /* 范围检查值... */
 //   if (dt->month < 1 || dt->month > 12 || dt->day < 1 || dt->day > 31 ||
 //       dt->hour < 0 || dt->hour > 23 || dt->minute < 0 || dt->minute > 59 ||
 //       dt->second < 0 || dt->second > 60)
 //   {
-//     /* Date information is out of range... */
+//     /* 日期信息超出范围... */
 //     free(dt);
 //     return (false);
 //   }
 //
-//   /* Convert ISO time to UNIX time in seconds... */
+//   /* 将ISO时间转换为UNIX时间（以秒为单位）... */
 //   tmdata.tm_year = dt->year - 1900;
 //   tmdata.tm_mon  = dt->month - 1;
 //   tmdata.tm_day  = dt->day;
@@ -143,17 +134,16 @@ mxmlOptionsNew(void)
 //
 //   dt->unix = gmtime(&tmdata);
 //
-//   /* Set custom data and free function... */
+//   /* 设置自定义数据和释放函数... */
 //   mxmlSetCustom(node, data, my_custom_free, /*cbdata*/NULL);
 //
-//   /* Return with no errors... */
+//   /* 返回无错误... */
 //   return (true);
 // }
 // ```
 //
-// The save callback `save_cb` accepts the callback data pointer `cbdata` and a
-// node pointer and returns a malloc'd string on success and `NULL` on error,
-// for example:
+// 保存回调`save_cb`接受回调数据指针`cbdata`和节点指针，并在成功时返回一个malloc的字符串，
+// 错误时返回`NULL`，例如：
 //
 // ```c
 // char *
@@ -162,14 +152,14 @@ mxmlOptionsNew(void)
 //   char data[255];
 //   iso_date_time_t *dt;
 //
-//   /* Get the custom data structure */
+//   /* 获取自定义数据结构 */
 //   dt = (iso_date_time_t *)mxmlGetCustom(node);
 //
-//   /* Generate string version of the date/time... */
+//   /* 生成日期/时间的字符串版本... */
 //   snprintf(data, sizeof(data), "%04u-%02u-%02uT%02u:%02u:%02uZ",
 //            dt->year, dt->month, dt->day, dt->hour, dt->minute, dt->second);
 //
-//   /* Duplicate the string and return... */
+//   /* 复制字符串并返回... */
 //   return (strdup(data));
 // }
 // ```
@@ -177,10 +167,10 @@ mxmlOptionsNew(void)
 
 void
 mxmlOptionsSetCustomCallbacks(
-    mxml_options_t     *options,	// I - Options
-    mxml_custload_cb_t load_cb,		// I - Custom load callback function
-    mxml_custsave_cb_t save_cb,		// I - Custom save callback function
-    void               *cbdata)		// I - Custom callback data
+    mxml_options_t     *options,	// 输入 - 选项
+    mxml_custload_cb_t load_cb,		// 输入 - 自定义加载回调函数
+    mxml_custsave_cb_t save_cb,		// 输入 - 自定义保存回调函数
+    void               *cbdata)		// 输入 - 自定义回调数据
 {
   if (options)
   {
@@ -192,13 +182,10 @@ mxmlOptionsSetCustomCallbacks(
 
 
 //
-// 'mxmlOptionsSetEntityCallback()' - Set the entity lookup callback to use when loading XML data.
+// 'mxmlOptionsSetEntityCallback（）' - 设置在加载XML数据时使用的实体查找回调。
 //
-// This function sets the callback that is used to lookup named XML character
-// entities when loading XML data.  The callback function `cb` accepts the
-// callback data pointer `cbdata` and the entity name.  The function returns a
-// Unicode character value or `-1` if the entity is not known.  For example, the
-// following entity callback supports the "euro" entity:
+// 此函数设置在加载XML数据时用于查找命名XML字符实体的回调。回调函数`cb`接受回调数据指针`cbdata`
+// 和实体名称。函数返回一个Unicode字符值，如果实体未知，则返回`-1`。例如，以下实体回调支持“euro”实体：
 //
 // ```c
 // int my_entity_cb(void *cbdata, const char *name)
@@ -210,15 +197,14 @@ mxmlOptionsSetCustomCallbacks(
 // }
 // ```
 //
-// Mini-XML automatically supports the "amp", "gt", "lt", and "quot" character
-// entities which are required by the base XML specification.
+// Mini-XML自动支持基本XML规范所需的“amp”、“gt”、“lt”和“quot”字符实体。
 //
 
 void
 mxmlOptionsSetEntityCallback(
-    mxml_options_t   *options,		// I - Options
-    mxml_entity_cb_t cb,		// I - Entity callback function
-    void             *cbdata)		// I - Entity callback data
+    mxml_options_t   *options,		// 输入 - 选项
+    mxml_entity_cb_t cb,		// 输入 - 实体回调函数
+    void             *cbdata)		// 输入 - 实体回调数据
 {
   if (options)
   {
@@ -229,11 +215,9 @@ mxmlOptionsSetEntityCallback(
 
 
 //
-// 'mxmlOptionsSetErrorCallback()' - Set the error message callback.
+// 'mxmlOptionsSetErrorCallback（）' - 设置错误消息回调。
 //
-// This function sets a function to use when reporting errors.  The callback
-// `cb` accepts the data pointer `cbdata` and a string pointer containing the
-// error message:
+// 此函数设置在报告错误时使用的函数。回调`cb`接受数据指针`cbdata`和包含错误消息的字符串指针：
 //
 // ```c
 // void my_error_cb(void *cbdata, const char *message)
@@ -242,14 +226,14 @@ mxmlOptionsSetEntityCallback(
 // }
 // ```
 //
-// The default error callback writes the error message to the `stderr` file.
+// 默认的错误回调将错误消息写入`stderr`文件。
 //
 
 void
 mxmlOptionsSetErrorCallback(
-    mxml_options_t  *options,		// I - Options
-    mxml_error_cb_t cb,			// I - Error callback function
-    void            *cbdata)		// I - Error callback data
+    mxml_options_t  *options,		// 输入 - 选项
+    mxml_error_cb_t cb,			// 输入 - 错误回调函数
+    void            *cbdata)		// 输入 - 错误回调数据
 {
   if (options)
   {
@@ -260,14 +244,11 @@ mxmlOptionsSetErrorCallback(
 
 
 //
-// 'mxmlOptionsSetSAXCallback()' - Set the SAX callback to use when reading XML data.
+// 'mxmlOptionsSetSAXCallback（）' - 设置在读取XML数据时使用的SAX回调。
 //
-// This function sets a SAX callback to use when reading XML data.  The SAX
-// callback function `cb` and associated callback data `cbdata` are used to
-// enable the Simple API for XML streaming mode.  The callback is called as the
-// XML node tree is parsed and receives the `cbdata` pointer, the `mxml_node_t`
-// pointer, and an event code.  The function returns `true` to continue
-// processing or `false` to stop:
+// 此函数设置在读取XML数据时使用的SAX回调。SAX回调函数`cb`和相关的回调数据`cbdata`用于启用
+// 简单API for XML流模式。当解析XML节点树时，回调在调用时接收`cbdata`指针、`mxml_node_t`指针
+// 和事件代码。函数返回`true`以继续处理，返回`false`以停止：
 //
 // ```c
 // bool
@@ -276,31 +257,29 @@ mxmlOptionsSetErrorCallback(
 // {
 //   ... do something ...
 //
-//   /* Continue processing... */
+//   /* 继续处理... */
 //   return (true);
 // }
 // ```
 //
-// The event will be one of the following:
+// 事件将是以下之一：
 //
-// - `MXML_SAX_EVENT_CDATA`: CDATA was just read.
-// - `MXML_SAX_EVENT_COMMENT`: A comment was just read.
-// - `MXML_SAX_EVENT_DATA`: Data (integer, opaque, real, or text) was just read.
-// - `MXML_SAX_EVENT_DECLARATION`: A declaration was just read.
-// - `MXML_SAX_EVENT_DIRECTIVE`: A processing directive/instruction was just read.
-// - `MXML_SAX_EVENT_ELEMENT_CLOSE` - A close element was just read \(`</element>`)
-// - `MXML_SAX_EVENT_ELEMENT_OPEN` - An open element was just read \(`<element>`)
+// - `MXML_SAX_EVENT_CDATA`：刚刚读取CDATA。
+// - `MXML_SAX_EVENT_COMMENT`：刚刚读取注释。
+// - `MXML_SAX_EVENT_DATA`：刚刚读取数据（整数、不透明、实数或文本）。
+// - `MXML_SAX_EVENT_DECLARATION`：刚刚读取声明。
+// - `MXML_SAX_EVENT_DIRECTIVE`：刚刚读取处理指令/指令。
+// - `MXML_SAX_EVENT_ELEMENT_CLOSE` - 刚刚读取关闭元素（`</element>`）
+// - `MXML_SAX_EVENT_ELEMENT_OPEN` - 刚刚读取打开元素（`<element>`）
 //
-// Elements are *released* after the close element is processed.  All other nodes
-// are released after they are processed.  The SAX callback can *retain* the node
-// using the [mxmlRetain](@@) function.
+// 元素在处理关闭元素后*释放*。所有其他节点在处理后释放。SAX回调可以使用[mxmlRetain](@@)函数*保留*节点。
 //
 
 void
 mxmlOptionsSetSAXCallback(
-    mxml_options_t *options,		// I - Options
-    mxml_sax_cb_t  cb,			// I - SAX callback function
-    void           *cbdata)		// I - SAX callback data
+    mxml_options_t *options,		// 输入 - 选项
+    mxml_sax_cb_t  cb,			// 输入 - SAX回调函数
+    void           *cbdata)		// 输入 - SAX回调数据
 {
   if (options)
   {
@@ -311,11 +290,9 @@ mxmlOptionsSetSAXCallback(
 
 
 //
-// 'mxmlOptionsSetTypeCallback()' - Set the type callback for child/value nodes.
+// 'mxmlOptionsSetTypeCallback（）' - 设置用于子节点/值节点的类型回调。
 //
-// The load callback function `cb` is called to obtain the node type child/value
-// nodes and receives the `cbdata` pointer and the `mxml_node_t` pointer, for
-// example:
+// 加载回调函数`cb`被调用以获取节点类型的子节点/值节点，并接收`cbdata`指针和`mxml_node_t`指针，例如：
 //
 // ```c
 // mxml_type_t
@@ -324,8 +301,7 @@ mxmlOptionsSetSAXCallback(
 //   const char *type;
 //
 //  /*
-//   * You can lookup attributes and/or use the element name,
-//   * hierarchy, etc...
+//   * 可以查找属性和/或使用元素名称、层次结构等...
 //   */
 //
 //   type = mxmlElementGetAttr(node, "type");
@@ -348,9 +324,9 @@ mxmlOptionsSetSAXCallback(
 
 void
 mxmlOptionsSetTypeCallback(
-    mxml_options_t *options,		// I - Options
-    mxml_type_cb_t cb,			// I - Type callback function
-    void           *cbdata)		// I - Type callback data
+    mxml_options_t *options,		// 输入 - 选项
+    mxml_type_cb_t cb,			// 输入 - 类型回调函数
+    void           *cbdata)		// 输入 - 类型回调数据
 {
   if (options)
   {
@@ -361,15 +337,15 @@ mxmlOptionsSetTypeCallback(
 
 
 //
-// 'mxmlOptionsSetTypeValue()' - Set the type to use for all child/value nodes.
+// 'mxmlOptionsSetTypeValue（）' - 设置用于所有子节点/值节点的类型。
 //
-// This functions sets a constant node type to use for all child/value nodes.
+// 此函数为所有子节点/值节点设置一个常量节点类型。
 //
 
 void
 mxmlOptionsSetTypeValue(
-    mxml_options_t *options,		// I - Options
-    mxml_type_t    type)		// I - Value node type
+    mxml_options_t *options,		// 输入 - 选项
+    mxml_type_t    type)		// 输入 - 值节点类型
 {
   if (options)
   {
@@ -380,13 +356,10 @@ mxmlOptionsSetTypeValue(
 
 
 //
-// 'mxmlOptionsSetWhitespaceCallback()' - Set the whitespace callback.
+// 'mxmlOptionsSetWhitespaceCallback（）' - 设置空白回调。
 //
-// This function sets the whitespace callback that is used when saving XML data.
-// The callback function `cb` specifies a function that returns a whitespace
-// string or `NULL` before and after each element.  The function receives the
-// callback data pointer `cbdata`, the `mxml_node_t` pointer, and a "when"
-// value indicating where the whitespace is being added, for example:
+// 此函数设置保存XML数据时使用的空白回调。回调函数`cb`指定在每个元素之前和之后返回一个空白字符串
+// 或`NULL`。函数接收回调数据指针`cbdata`、`mxml_node_t`指针和指示空白添加位置的“when”值，例如：
 //
 // ```c
 // const char *my_whitespace_cb(void *cbdata, mxml_node_t *node, mxml_ws_t when)
@@ -401,9 +374,9 @@ mxmlOptionsSetTypeValue(
 
 void
 mxmlOptionsSetWhitespaceCallback(
-    mxml_options_t *options,		// I - Options
-    mxml_ws_cb_t   cb,			// I - Whitespace callback function
-    void           *cbdata)		// I - Whitespace callback data
+    mxml_options_t *options,		// 输入 - 选项
+    mxml_ws_cb_t   cb,			// 输入 - 空白回调函数
+    void           *cbdata)		// 输入 - 空白回调数据
 {
   if (options)
   {
@@ -414,16 +387,15 @@ mxmlOptionsSetWhitespaceCallback(
 
 
 //
-// 'mxmlOptionsSetWrapMargin()' - Set the wrap margin when saving XML data.
+// 'mxmlOptionsSetWrapMargin（）' - 设置保存XML数据时的换行边距。
 //
-// This function sets the wrap margin used when saving XML data.  Wrapping is
-// disabled when `column` is `0`.
+// 此函数设置保存XML数据时使用的换行边距。当`column`为`0`时，禁用换行。
 //
 
 void
 mxmlOptionsSetWrapMargin(
-    mxml_options_t *options,		// I - Options
-    int            column)		// I - Wrap column
+    mxml_options_t *options,		// 输入 - 选项
+    int            column)		// 输入 - 换行列
 {
   if (options)
     options->wrap = column;
@@ -431,11 +403,11 @@ mxmlOptionsSetWrapMargin(
 
 
 //
-// '_mxml_entity_string()' - Get the entity that corresponds to the character, if any.
+// '_mxml_entity_string（）' - 获取与字符对应的实体（如果有）。
 //
 
-const char *				// O - Entity or `NULL` for none
-_mxml_entity_string(int ch)		// I - Character
+const char *				// 输出 - 实体或`NULL`（如果没有）
+_mxml_entity_string(int ch)		// 输入 - 字符
 {
   switch (ch)
   {
@@ -458,28 +430,27 @@ _mxml_entity_string(int ch)		// I - Character
 
 
 //
-// '_mxml_entity_value()' - Get the character corresponding to a named entity.
+// '_mxml_entity_value（）' - 获取与命名实体对应的字符。
 //
-// The entity name can also be a numeric constant. `-1` is returned if the
-// name is not known.
+// 实体名称也可以是数字常量。如果名称未知，则返回`-1`。
 //
 
-int					// O - Unicode character
+int					// 输出 - Unicode字符
 _mxml_entity_value(
-    mxml_options_t *options,		// I - Options
-    const char     *name)		// I - Entity name
+    mxml_options_t *options,		// 输入 - 选项
+    const char     *name)		// 输入 - 实体名称
 {
-  int		ch = -1;		// Unicode character
+  int		ch = -1;		// Unicode字符
 
 
   if (!name)
   {
-    // No name...
+    // 没有名称...
     return (-1);
   }
   else if (*name == '#')
   {
-    // Numeric entity...
+    // 数字实体...
     if (name[1] == 'x')
       ch = (int)strtol(name + 2, NULL, 16);
     else
@@ -507,7 +478,7 @@ _mxml_entity_value(
   }
   else if (options && options->entity_cb)
   {
-    // Use callback
+    // 使用回调
     ch = (options->entity_cb)(options->entity_cbdata, name);
   }
 
@@ -516,28 +487,28 @@ _mxml_entity_value(
 
 
 //
-// '_mxml_error()' - Display an error message.
+// '_mxml_error（）' - 显示错误消息。
 //
 
 void
-_mxml_error(mxml_options_t *options,	// I - Load/save options
-            const char     *format,	// I - Printf-style format string
-            ...)			// I - Additional arguments as needed
+_mxml_error(mxml_options_t *options,	// 输入 - 加载/保存选项
+            const char     *format,	// 输入 - Printf样式的格式字符串
+            ...)			// 输入 - 需要的其他参数
 {
-  va_list	ap;			// Pointer to arguments
-  char		s[1024];		// Message string
+  va_list	ap;			// 指向参数的指针
+  char		s[1024];		// 消息字符串
 
 
-  // Range check input...
+  // 检查输入范围...
   if (!format)
     return;
 
-  // Format the error message string...
+  // 格式化错误消息字符串...
   va_start(ap, format);
   vsnprintf(s, sizeof(s), format, ap);
   va_end(ap);
 
-  // And then display the error message...
+  // 然后显示错误消息...
   if (options->error_cb)
     (options->error_cb)(options->error_cbdata, s);
   else

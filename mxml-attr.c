@@ -1,267 +1,231 @@
-//
-// Attribute support code for Mini-XML, a small XML file parsing library.
+// Mini-XML的属性支持代码，一个小型的XML文件解析库。
 //
 // https://www.msweet.org/mxml
 //
-// Copyright © 2003-2024 by Michael R Sweet.
+// 版权所有 © 2003-2024 Michael R Sweet。
 //
-// Licensed under Apache License v2.0.  See the file "LICENSE" for more
-// information.
+// 根据Apache许可证v2.0进行许可。更多信息请参见文件“LICENSE”。
 //
 
 #include "mxml-private.h"
 
 
 //
-// Local functions...
+// 本地函数...
 //
 
-static bool	mxml_set_attr(mxml_node_t *node, const char *name, char *value);
+static bool mxml_set_attr(mxml_node_t *node, const char *name, char *value);
 
 
 //
-// 'mxmlElementClearAttr()' - Remove an attribute from an element.
+// 'mxmlElementClearAttr（）' - 从元素中删除属性。
 //
-// This function removes the attribute `name` from the element `node`.
-//
+// 此函数从元素`node`中删除属性`name`。
 
-void
-mxmlElementClearAttr(mxml_node_t *node,	// I - Element
-                     const char  *name)	// I - Attribute name
+void mxmlElementClearAttr(mxml_node_t *node, const char *name)
 {
-  size_t	i;			// Looping var
-  _mxml_attr_t	*attr;			// Cirrent attribute
+    size_t i; // 循环变量
+    _mxml_attr_t *attr; // 当前属性
 
+    MXML_DEBUG("mxmlElementClearAttr（node = %p，name = \"%s\"）\n", node, name ? name : "(null)");
 
-  MXML_DEBUG("mxmlElementClearAttr(node=%p, name=\"%s\")\n", node, name ? name : "(null)");
+    // 范围检查输入...
+    if (!node || node->type != MXML_TYPE_ELEMENT || !name)
+        return;
 
-  // Range check input...
-  if (!node || node->type != MXML_TYPE_ELEMENT || !name)
-    return;
-
-  // Look for the attribute...
-  for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
-  {
-    MXML_DEBUG("mxmlElementClearAttr: %s=\"%s\"\n", attr->name, attr->value);
-
-    if (!strcmp(attr->name, name))
+    // 查找属性...
+    for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i--, attr++)
     {
-      // Delete this attribute...
-      _mxml_strfree(attr->name);
-      _mxml_strfree(attr->value);
+        MXML_DEBUG("mxmlElementClearAttr：%s = \"%s\" \n", attr->name, attr->value);
 
-      i --;
-      if (i > 0)
-        memmove(attr, attr + 1, i * sizeof(_mxml_attr_t));
+        if (!strcmp(attr->name, name))
+        {
+            // 删除此属性...
+            _mxml_strfree(attr->name);
+            _mxml_strfree(attr->value);
 
-      node->value.element.num_attrs --;
+            i--;
+            if (i > 0)
+                memmove(attr, attr + 1, i * sizeof(_mxml_attr_t));
 
-      if (node->value.element.num_attrs == 0)
-        free(node->value.element.attrs);
-      return;
+            node->value.element.num_attrs--;
+
+            if (node->value.element.num_attrs == 0)
+                free(node->value.element.attrs);
+            return;
+        }
     }
-  }
 }
 
 
 //
-// 'mxmlElementGetAttr()' - Get the value of an attribute.
+// 'mxmlElementGetAttr（）' - 获取属性的值。
 //
-// This function gets the value for the attribute `name` from the element
-// `node`.  `NULL` is returned if the node is not an element or the named
-// attribute does not exist.
-//
+// 此函数从元素`node`中获取属性`name`的值。如果节点不是元素或指定的属性不存在，则返回`NULL`。
 
-const char *				// O - Attribute value or `NULL`
-mxmlElementGetAttr(mxml_node_t *node,	// I - Element node
-                   const char  *name)	// I - Name of attribute
+const char * mxmlElementGetAttr(mxml_node_t *node, const char *name)
 {
-  size_t	i;			// Looping var
-  _mxml_attr_t	*attr;			// Cirrent attribute
+    size_t i; // 循环变量
+    _mxml_attr_t *attr; // 当前属性
 
+    MXML_DEBUG("mxmlElementGetAttr（node = %p，name = \"%s\"）\n", node, name ? name : "(null)");
 
-  MXML_DEBUG("mxmlElementGetAttr(node=%p, name=\"%s\")\n", node, name ? name : "(null)");
+    // 范围检查输入...
+    if (!node || node->type != MXML_TYPE_ELEMENT || !name)
+        return NULL;
 
-  // Range check input...
-  if (!node || node->type != MXML_TYPE_ELEMENT || !name)
-    return (NULL);
-
-  // Look for the attribute...
-  for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
-  {
-    MXML_DEBUG("mxmlElementGetAttr: %s=\"%s\"\n", attr->name, attr->value);
-
-    if (!strcmp(attr->name, name))
+    // 查找属性...
+    for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i--, attr++)
     {
-      MXML_DEBUG("mxmlElementGetAttr: Returning \"%s\".\n", attr->value);
-      return (attr->value);
+        MXML_DEBUG("mxmlElementGetAttr：%s = \"%s\" \n", attr->name, attr->value);
+
+        if (!strcmp(attr->name, name))
+        {
+            MXML_DEBUG("mxmlElementGetAttr：返回\"%s\"。 \n", attr->value);
+            return attr->value;
+        }
     }
-  }
 
-  // Didn't find attribute, so return NULL...
-  MXML_DEBUG("mxmlElementGetAttr: Returning NULL.\n");
+    // 未找到属性，因此返回NULL...
+    MXML_DEBUG("mxmlElementGetAttr：返回NULL。 \n");
 
-  return (NULL);
+    return NULL;
 }
 
 
 //
-// 'mxmlElementGetAttrByIndex()' - Get an attribute by index.
+// 'mxmlElementGetAttrByIndex（）' - 按索引获取属性。
 //
-// This function returned the Nth (`idx`) attribute for element `node`.  The
-// attribute name is optionallly returned in the `name` argument.  `NULL` is
-// returned if node is not an element or the specified index is out of range.
-//
+// 此函数返回元素`node`的第N个（`idx`）属性。属性名称可以选择在`name`参数中返回。如果节点不是元素或指定的索引超出范围，则返回NULL。
 
-const char *                            // O - Attribute value
+const char * // O - 属性值
 mxmlElementGetAttrByIndex(
-    mxml_node_t *node,			// I - Node
-    size_t      idx,			// I - Attribute index, starting at `0`
-    const char  **name)			// O - Attribute name or `NULL` to not return it
+    mxml_node_t *node, // I - 节点
+    size_t idx, // I - 属性索引，从`0`开始
+    const char **name) // O - 属性名称或`NULL`以不返回它
 {
-  if (!node || node->type != MXML_TYPE_ELEMENT || idx >= node->value.element.num_attrs)
-    return (NULL);
+    if (!node || node->type != MXML_TYPE_ELEMENT || idx >= node->value.element.num_attrs)
+        return NULL;
 
-  if (name)
-    *name = node->value.element.attrs[idx].name;
+    if (name)
+        *name = node->value.element.attrs[idx].name;
 
-  return (node->value.element.attrs[idx].value);
+    return node->value.element.attrs[idx].value;
 }
 
 
 //
-// 'mxmlElementGetAttrCount()' - Get the number of element attributes.
+// 'mxmlElementGetAttrCount（）' - 获取元素属性的数量。
 //
-// This function returns the number of attributes for the element `node`.  `0`
-// is returned if the node is not an element or there are no attributes for the
-// element.
-//
+// 此函数返回元素`node`的属性数量。如果节点不是元素或元素没有属性，则返回0。
 
-size_t					// O - Number of attributes
+size_t // O - 属性数量
 mxmlElementGetAttrCount(
-    mxml_node_t *node)			// I - Node
+    mxml_node_t *node) // I - 节点
 {
-  if (node && node->type == MXML_TYPE_ELEMENT)
-    return (node->value.element.num_attrs);
-  else
-    return (0);
+    if (node && node->type == MXML_TYPE_ELEMENT)
+        return node->value.element.num_attrs;
+    else
+        return 0;
 }
 
 
 //
-// 'mxmlElementSetAttr()' - Set an attribute for an element.
+// 'mxmlElementSetAttr（）' - 为元素设置属性。
 //
-// This function sets attribute `name` to the string `value` for the element
-// `node`.  If the named attribute already exists, the value of the attribute
-// is replaced by the new string value.  The string value is copied.
-//
+// 此函数为元素`node`设置属性`name`为字符串`value`。如果已存在具有指定名称的属性，则属性的值将被新的字符串值替换。字符串值将被复制。
 
-void
-mxmlElementSetAttr(mxml_node_t *node,	// I - Element node
-                   const char  *name,	// I - Name of attribute
-                   const char  *value)	// I - Attribute value
+void mxmlElementSetAttr(mxml_node_t *node, const char *name, const char *value)
 {
-  char	*valuec;			// Copy of value
+    char *valuec; // value的副本
 
+    MXML_DEBUG("mxmlElementSetAttr（node = %p，name = \"%s\"，value = \"%s\"）\n", node, name ? name : "(null)", value ? value : "(null)");
 
-  MXML_DEBUG("mxmlElementSetAttr(node=%p, name=\"%s\", value=\"%s\")\n", node, name ? name : "(null)", value ? value : "(null)");
+    // 范围检查输入...
+    if (!node || node->type != MXML_TYPE_ELEMENT || !name)
+        return;
 
-  // Range check input...
-  if (!node || node->type != MXML_TYPE_ELEMENT || !name)
-    return;
-
-  if (value)
-  {
-    if ((valuec = _mxml_strcopy(value)) == NULL)
-      return;
-  }
-  else
-  {
-    valuec = NULL;
-  }
-
-  if (!mxml_set_attr(node, name, valuec))
-    _mxml_strfree(valuec);
-}
-
-
-//
-// 'mxmlElementSetAttrf()' - Set an attribute with a formatted value.
-//
-// This function sets attribute `name` to the formatted value of `format` for
-// the element `node`.  If the named attribute already exists, the value of the
-// attribute is replaced by the new formatted string value.
-//
-
-void
-mxmlElementSetAttrf(mxml_node_t *node,	// I - Element node
-                    const char  *name,	// I - Name of attribute
-                    const char  *format,// I - Printf-style attribute value
-		    ...)		// I - Additional arguments as needed
-{
-  va_list	ap;			// Argument pointer
-  char		buffer[16384];		// Format buffer
-  char		*value;			// Value
-
-
-  MXML_DEBUG("mxmlElementSetAttrf(node=%p, name=\"%s\", format=\"%s\", ...)\n", node, name ? name : "(null)", format ? format : "(null)");
-
-  // Range check input...
-  if (!node || node->type != MXML_TYPE_ELEMENT || !name || !format)
-    return;
-
-  // Format the value...
-  va_start(ap, format);
-  vsnprintf(buffer, sizeof(buffer), format, ap);
-  va_end(ap);
-
-  if ((value = _mxml_strcopy(buffer)) != NULL)
-  {
-    if (!mxml_set_attr(node, name, value))
-      _mxml_strfree(value);
-  }
-}
-
-
-//
-// 'mxml_set_attr()' - Set or add an attribute name/value pair.
-//
-
-static bool				// O - `true` on success, `false` on failure
-mxml_set_attr(mxml_node_t *node,	// I - Element node
-              const char  *name,	// I - Attribute name
-              char        *value)	// I - Attribute value
-{
-  int		i;			// Looping var
-  _mxml_attr_t	*attr;			// New attribute
-
-
-  // Look for the attribute...
-  for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
-  {
-    if (!strcmp(attr->name, name))
+    if (value)
     {
-      // Free the old value as needed...
-      _mxml_strfree(attr->value);
-      attr->value = value;
-
-      return (true);
+        if ((valuec = _mxml_strcopy(value)) == NULL)
+            return;
     }
-  }
+    else
+    {
+        valuec = NULL;
+    }
 
-  // Add a new attribute...
-  if ((attr = realloc(node->value.element.attrs, (node->value.element.num_attrs + 1) * sizeof(_mxml_attr_t))) == NULL)
-    return (false);
+    if (!mxml_set_attr(node, name, valuec))
+        _mxml_strfree(valuec);
+}
 
-  node->value.element.attrs = attr;
-  attr += node->value.element.num_attrs;
 
-  if ((attr->name = _mxml_strcopy(name)) == NULL)
-    return (false);
+//
+// 'mxmlElementSetAttrf（）' - 使用格式化的值设置属性。
+//
+// 此函数将属性`name`设置为元素`node`的`format`的格式化值。如果已存在具有指定名称的属性，则属性的值将被新的格式化字符串值替换。
 
-  attr->value = value;
+void mxmlElementSetAttrf(mxml_node_t *node, const char *name, const char *format, ...) // I - 格式化的属性值，如有需要，还有其他参数
+{
+    va_list ap; // 参数指针
+    char buffer[16384]; // 格式化缓冲区
+    char *value; // 值
 
-  node->value.element.num_attrs ++;
+    MXML_DEBUG("mxmlElementSetAttrf（node = %p，name = \"%s\"，format = \"%s\"，...）\n", node, name ? name : "(null)", format ? format : "(null)");
 
-  return (true);
+    // 范围检查输入...
+    if (!node || node->type != MXML_TYPE_ELEMENT || !name || !format)
+        return;
+
+    // 格式化值...
+    va_start(ap, format);
+    vsnprintf(buffer, sizeof(buffer), format, ap);
+    va_end(ap);
+
+    if ((value = _mxml_strcopy(buffer)) != NULL)
+    {
+        if (!mxml_set_attr(node, name, value))
+            _mxml_strfree(value);
+    }
+}
+
+
+//
+// 'mxml_set_attr（）' - 设置或添加属性名/值对。
+//
+
+static bool // O - 成功时为`true`，失败时为`false`
+mxml_set_attr(mxml_node_t *node, const char *name, char *value) // I - 元素节点，属性名称，属性值
+{
+    int i; // 循环变量
+    _mxml_attr_t *attr; // 新属性
+
+    // 查找属性...
+    for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i--, attr++)
+    {
+        if (!strcmp(attr->name, name))
+        {
+            // 根据需要释放旧值...
+            _mxml_strfree(attr->value);
+            attr->value = value;
+
+            return true;
+        }
+    }
+
+    // 添加新属性...
+    if ((attr = realloc(node->value.element.attrs, (node->value.element.num_attrs + 1) * sizeof(_mxml_attr_t))) == NULL)
+        return false;
+
+    node->value.element.attrs = attr;
+    attr += node->value.element.num_attrs;
+
+    if ((attr->name = _mxml_strcopy(name)) == NULL)
+        return false;
+
+    attr->value = value;
+
+    node->value.element.num_attrs++;
+
+    return true;
 }

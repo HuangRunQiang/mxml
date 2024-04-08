@@ -1,69 +1,62 @@
 //
-// Search/navigation functions for Mini-XML, a small XML file parsing library.
+// Mini-XML的搜索/导航函数，这是一个小型的XML文件解析库。
 //
 // https://www.msweet.org/mxml
 //
-// Copyright © 2003-2024 by Michael R Sweet.
+// 版权所有 © 2003-2024 Michael R Sweet.
 //
-// Licensed under Apache License v2.0.  See the file "LICENSE" for more
-// information.
+// 根据Apache许可证v2.0授权。更多信息请参阅"LICENSE"文件。
 //
 
 #include "mxml-private.h"
 
 
 //
-// 'mxmlFindElement()' - Find the named element.
+// 'mxmlFindElement()' - 查找指定的元素。
 //
-// This function finds the named element `element` in XML tree `top` starting at
-// node `node`.  The search is constrained by element name `element`, attribute
-// name `attr`, and attribute value `value` - `NULL` names or values are treated
-// as wildcards, so different kinds of searches can be implemented by looking
-// for all elements of a given name or all elements with a specific attribute.
+// 此函数在从节点`node`开始的XML树`top`中查找名为`element`的元素。搜索由元素名称`element`、属性名称`attr`和属性值`value`约束 - `NULL`名称或值被视为通配符，因此可以通过查找具有给定名称的所有元素或具有特定属性的所有元素来实现不同类型的搜索。
 //
-// The `descend` argument determines whether the search descends into child
-// nodes; normally you will use `MXML_DESCEND_FIRST` for the initial search and
-// `MXML_DESCEND_NONE` to find additional direct descendents of the node.
+// `descend`参数确定搜索是否进入子节点；通常，您将在初始搜索中使用`MXML_DESCEND_FIRST`，并使用`MXML_DESCEND_NONE`来查找节点的其他直接子节点。
 //
 
-mxml_node_t *				// O - Element node or `NULL`
-mxmlFindElement(mxml_node_t    *node,	// I - Current node
-                mxml_node_t    *top,	// I - Top node
-                const char     *element,// I - Element name or `NULL` for any
-		const char     *attr,	// I - Attribute name, or `NULL` for none
-		const char     *value,	// I - Attribute value, or `NULL` for any
-		mxml_descend_t descend)	// I - Descend into tree - `MXML_DESCEND_ALL`, `MXML_DESCEND_NONE`, or `MXML_DESCEND_FIRST`
+mxml_node_t *				// 输出 - 元素节点或`NULL`
+mxmlFindElement(mxml_node_t    *node,	// 输入 - 当前节点
+                mxml_node_t    *top,	// 输入 - 顶级节点
+                const char     *element,// 输入 - 元素名称或`NULL`表示任意元素
+		const char     *attr,	// 输入 - 属性名称或`NULL`表示无属性
+		const char     *value,	// 输入 - 属性值或`NULL`表示任意值
+		mxml_descend_t descend)	// 输入 - 遍历树的方式 - `MXML_DESCEND_ALL`、`MXML_DESCEND_NONE`或`MXML_DESCEND_FIRST`
 {
-  const char	*temp;			// Current attribute value
+  const char	*temp;			// 当前属性值
 
 
-  // Range check input...
+  // 输入范围检查...
   if (!node || !top || (!attr && value))
     return (NULL);
 
-  // Start with the next node...
+  // 从下一个节点开始...
   node = mxmlWalkNext(node, top, descend);
 
-  // Loop until we find a matching element...
+  // 循环直到找到匹配的元素...
   while (node != NULL)
   {
-    // See if this node matches...
+    // 检查此节点是否匹配...
     if (node->type == MXML_TYPE_ELEMENT && node->value.element.name && (!element || !strcmp(node->value.element.name, element)))
     {
-      // See if we need to check for an attribute...
+      // 检查是否需要检查属性...
       if (!attr)
-        return (node);			// No attribute search, return it...
+        return (node);			// 无属性搜索，返回该节点...
 
-      // Check for the attribute...
+      // 检查属性...
       if ((temp = mxmlElementGetAttr(node, attr)) != NULL)
       {
-        // OK, we have the attribute, does it match?
+        // 属性匹配，返回该节点...
 	if (!value || !strcmp(value, temp))
-	  return (node);		// Yes, return it...
+	  return (node);
       }
     }
 
-    // No match, move on to the next node...
+    // 无匹配，继续下一个节点...
     if (descend == MXML_DESCEND_ALL)
       node = mxmlWalkNext(node, top, MXML_DESCEND_ALL);
     else
@@ -75,36 +68,32 @@ mxmlFindElement(mxml_node_t    *node,	// I - Current node
 
 
 //
-// 'mxmlFindPath()' - Find a node with the given path.
+// 'mxmlFindPath()' - 根据给定的路径查找节点。
 //
-// This function finds a node in XML tree `top` using a slash-separated list of
-// element names in `path`.  The name "*" is considered a wildcard for one or
-// more levels of elements, for example, "foo/one/two", "bar/two/one", "*\/one",
-// and so forth.
+// 此函数使用斜杠分隔的元素名称列表`path`在XML树`top`中查找节点。名称"*"被视为一个或多个级别元素的通配符，例如"foo/one/two"、"bar/two/one"、"*\/one"等等。
 //
-// The first child node of the found node is returned if the given node has
-// children and the first child is a value node.
+// 如果给定节点具有子节点且第一个子节点是值节点，则返回第一个子节点。
 //
 
-mxml_node_t *				// O - Found node or `NULL`
-mxmlFindPath(mxml_node_t *top,		// I - Top node
-	     const char  *path)		// I - Path to element
+mxml_node_t *				// 输出 - 找到的节点或`NULL`
+mxmlFindPath(mxml_node_t *top,		// 输入 - 顶级节点
+	     const char  *path)		// 输入 - 元素的路径
 {
-  mxml_node_t	*node;			// Current node
-  char		element[256];		// Current element name
-  const char	*pathsep;		// Separator in path
-  mxml_descend_t descend;		// mxmlFindElement option
+  mxml_node_t	*node;			// 当前节点
+  char		element[256];		// 当前元素名称
+  const char	*pathsep;		// 路径中的分隔符
+  mxml_descend_t descend;		// mxmlFindElement选项
 
 
-  // Range check input...
+  // 输入范围检查...
   if (!top || !path || !*path)
     return (NULL);
 
-  // Search each element in the path...
+  // 搜索路径中的每个元素...
   node = top;
   while (*path)
   {
-    // Handle wildcards...
+    // 处理通配符...
     if (!strncmp(path, "*/", 2))
     {
       path += 2;
@@ -115,7 +104,7 @@ mxmlFindPath(mxml_node_t *top,		// I - Top node
       descend = MXML_DESCEND_FIRST;
     }
 
-    // Get the next element in the path...
+    // 获取路径中的下一个元素...
     if ((pathsep = strchr(path, '/')) == NULL)
       pathsep = path + strlen(path);
 
@@ -130,12 +119,12 @@ mxmlFindPath(mxml_node_t *top,		// I - Top node
     else
       path = pathsep;
 
-    // Search for the element...
+    // 查找元素...
     if ((node = mxmlFindElement(node, node, element, NULL, NULL, descend)) == NULL)
       return (NULL);
   }
 
-  // If we get this far, return the node or its first child...
+  // 如果执行到这里，返回节点或其第一个子节点...
   if (node->child && node->child->type != MXML_TYPE_ELEMENT)
     return (node->child);
   else
@@ -144,17 +133,15 @@ mxmlFindPath(mxml_node_t *top,		// I - Top node
 
 
 //
-// 'mxmlWalkNext()' - Walk to the next logical node in the tree.
+// 'mxmlWalkNext()' - 遍历树中的下一个逻辑节点。
 //
-// This function walks to the next logical node in the tree.  The `descend`
-// argument controls whether the first child is considered to be the next node.
-// The `top` argument constrains the walk to that node's children.
+// 此函数在树中遍历到下一个逻辑节点。`descend`参数控制是否将第一个子节点视为下一个节点。`top`参数将遍历约束为该节点的子节点。
 //
 
-mxml_node_t *				// O - Next node or `NULL`
-mxmlWalkNext(mxml_node_t    *node,	// I - Current node
-             mxml_node_t    *top,	// I - Top node
-             mxml_descend_t descend)	// I - Descend into tree - `MXML_DESCEND_ALL`, `MXML_DESCEND_NONE`, or `MXML_DESCEND_FIRST`
+mxml_node_t *				// 输出 - 下一个节点或`NULL`
+mxmlWalkNext(mxml_node_t    *node,	// 输入 - 当前节点
+             mxml_node_t    *top,	// 输入 - 顶级节点
+             mxml_descend_t descend)	// 输入 - 遍历树的方式 - `MXML_DESCEND_ALL`、`MXML_DESCEND_NONE`或`MXML_DESCEND_FIRST`
 {
   if (!node)
   {
@@ -194,17 +181,15 @@ mxmlWalkNext(mxml_node_t    *node,	// I - Current node
 
 
 //
-// 'mxmlWalkPrev()' - Walk to the previous logical node in the tree.
+// 'mxmlWalkPrev()' - 遍历树中的上一个逻辑节点。
 //
-// This function walks to the previous logical node in the tree.  The `descend`
-// argument controls whether the first child is considered to be the next node.
-// The `top` argument constrains the walk to that node's children.
+// 此函数在树中遍历到上一个逻辑节点。`descend`参数控制是否将第一个子节点视为下一个节点。`top`参数将遍历约束为该节点的子节点。
 //
 
-mxml_node_t *				// O - Previous node or `NULL`
-mxmlWalkPrev(mxml_node_t    *node,	// I - Current node
-             mxml_node_t    *top,	// I - Top node
-             mxml_descend_t descend)	// I - Descend into tree - `MXML_DESCEND_ALL`, `MXML_DESCEND_NONE`, or `MXML_DESCEND_FIRST`
+mxml_node_t *				// 输出 - 上一个节点或`NULL`
+mxmlWalkPrev(mxml_node_t    *node,	// 输入 - 当前节点
+             mxml_node_t    *top,	// 输入 - 顶级节点
+             mxml_descend_t descend)	// 输入 - 遍历树的方式 - `MXML_DESCEND_ALL`、`MXML_DESCEND_NONE`或`MXML_DESCEND_FIRST`
 {
   if (!node || node == top)
   {
@@ -214,7 +199,7 @@ mxmlWalkPrev(mxml_node_t    *node,	// I - Current node
   {
     if (node->prev->last_child && descend != MXML_DESCEND_NONE)
     {
-      // Find the last child under the previous node...
+      // 查找上一个节点下的最后一个子节点...
       node = node->prev->last_child;
 
       while (node->last_child)

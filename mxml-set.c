@@ -1,32 +1,29 @@
 //
-// Node set functions for Mini-XML, a small XML file parsing library.
+// Mini-XML的节点设置函数，一个小型的XML文件解析库。
 //
 // https://www.msweet.org/mxml
 //
-// Copyright © 2003-2024 by Michael R Sweet.
+// 版权所有 © 2003-2024 Michael R. Sweet。
 //
-// Licensed under Apache License v2.0.  See the file "LICENSE" for more
-// information.
+// 根据Apache许可证v2.0进行许可。有关更多信息，请参阅“LICENSE”文件。
 //
 
 #include "mxml-private.h"
 
 
 //
-// 'mxmlSetCDATA()' - Set the data for a CDATA node.
+// 'mxmlSetCDATA（）' - 设置CDATA节点的数据。
 //
-// This function sets the value string for a CDATA node.  The node is not
-// changed if it (or its first child) is not a CDATA node.
-//
+// 此函数设置CDATA节点的值字符串。如果节点（或其第一个子节点）不是CDATA节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetCDATA(mxml_node_t *node,		// I - Node to set
-             const char  *data)		// I - New data string
+bool					// 成功返回true，失败返回false
+mxmlSetCDATA（mxml_node_t *node，		// 要设置的节点
+             const char  *data）		// 新数据字符串
 {
-  char	*s;				// New element name
+  char	*s;				// 新元素名称
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_CDATA)
     node = node->child;
 
@@ -37,15 +34,15 @@ mxmlSetCDATA(mxml_node_t *node,		// I - Node to set
 
   if (data == node->value.cdata)
   {
-    // Don't change the value...
+    // 不要更改值...
     return (true);
   }
 
-  // Allocate the new value, free any old element value, and set the new value...
-  if ((s = _mxml_strcopy(data)) == NULL)
+  // 分配新值，释放任何旧元素值，并设置新值...
+  if ((s = _mxml_strcopy（data）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.cdata);
+  _mxml_strfree（node->value.cdata）;
   node->value.cdata = s;
 
   return (true);
@@ -53,23 +50,21 @@ mxmlSetCDATA(mxml_node_t *node,		// I - Node to set
 
 
 //
-// 'mxmlSetCDATAf()' - Set the data for a CDATA to a formatted string.
+// 'mxmlSetCDATAf（）' - 将CDATA数据设置为格式化字符串。
 //
-// This function sets the formatted string value of a CDATA node.  The node is
-// not changed if it (or its first child) is not a CDATA node.
-//
+// 此函数将格式化字符串值设置为CDATA节点。如果节点（或其第一个子节点）不是CDATA节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetCDATAf(mxml_node_t *node,	// I - Node
-	      const char *format,	// I - `printf`-style format string
-	      ...)			// I - Additional arguments as needed
+bool					// 成功返回true，失败返回false
+mxmlSetCDATAf（mxml_node_t *node，	// 节点
+	      const char *format，	// `printf`样式格式字符串
+	      ...）			// 根据需要的其他参数
 {
-  va_list	ap;			// Pointer to arguments
-  char		buffer[16384];		// Format buffer
-  char		*s;			// Temporary string
+  va_list	ap;			// 参数指针
+  char		buffer[16384];		// 格式缓冲区
+  char		*s;			// 临时字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_CDATA)
     node = node->child;
 
@@ -78,15 +73,15 @@ mxmlSetCDATAf(mxml_node_t *node,	// I - Node
   else if (!format)
     return (false);
 
-  // Format the new string, free any old string value, and set the new value...
+  // 格式化新字符串，释放任何旧字符串值，并设置新值...
   va_start(ap, format);
   vsnprintf(buffer, sizeof(buffer), format, ap);
   va_end(ap);
 
-  if ((s = _mxml_strcopy(buffer)) == NULL)
+  if ((s = _mxml_strcopy（buffer）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.cdata);
+  _mxml_strfree（node->value.cdata）;
   node->value.cdata = s;
 
   return (true);
@@ -94,19 +89,18 @@ mxmlSetCDATAf(mxml_node_t *node,	// I - Node
 
 
 //
-// 'mxmlSetComment()' - Set a comment to a literal string.
+// 'mxmlSetComment（）' - 将注释设置为字面字符串。
 //
-// This function sets the string value of a comment node.
-//
+// 此函数设置注释节点的字符串值。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetComment(mxml_node_t *node,	// I - Node
-               const char  *comment)	// I - Literal string
+bool					// 成功返回true，失败返回false
+mxmlSetComment（mxml_node_t *node，	// 节点
+               const char  *comment）	// 字面字符串
 {
-  char *s;				// New string
+  char *s;				// 新字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_COMMENT)
     node = node->child;
 
@@ -118,11 +112,11 @@ mxmlSetComment(mxml_node_t *node,	// I - Node
   if (comment == node->value.comment)
     return (true);
 
-  // Free any old string value and set the new value...
-  if ((s = _mxml_strcopy(comment)) == NULL)
+  // 释放任何旧字符串值并设置新值...
+  if ((s = _mxml_strcopy（comment）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.comment);
+  _mxml_strfree（node->value.comment）;
   node->value.comment = s;
 
   return (true);
@@ -130,22 +124,21 @@ mxmlSetComment(mxml_node_t *node,	// I - Node
 
 
 //
-// 'mxmlSetCommentf()' - Set a comment to a formatted string.
+// 'mxmlSetCommentf（）' - 将注释设置为格式化字符串。
 //
-// This function sets the formatted string value of a comment node.
-//
+// 此函数将格式化字符串值设置为注释节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetCommentf(mxml_node_t *node,	// I - Node
-                const char *format,	// I - `printf`-style format string
-		...)			// I - Additional arguments as needed
+bool					// 成功返回true，失败返回false
+mxmlSetCommentf（mxml_node_t *node，	// 节点
+                const char *format，	// `printf`样式格式字符串
+		...）			// 根据需要的其他参数
 {
-  va_list	ap;			// Pointer to arguments
-  char		buffer[16384];		// Format buffer
-  char		*s;			// Temporary string
+  va_list	ap;			// 参数指针
+  char		buffer[16384];		// 格式缓冲区
+  char		*s;			// 临时字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_COMMENT)
     node = node->child;
 
@@ -154,15 +147,15 @@ mxmlSetCommentf(mxml_node_t *node,	// I - Node
   else if (!format)
     return (false);
 
-  // Format the new string, free any old string value, and set the new value...
+  // 格式化新字符串，释放任何旧字符串值，并设置新值...
   va_start(ap, format);
   vsnprintf(buffer, sizeof(buffer), format, ap);
   va_end(ap);
 
-  if ((s = _mxml_strcopy(buffer)) == NULL)
+  if ((s = _mxml_strcopy（buffer）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.comment);
+  _mxml_strfree（node->value.comment）;
   node->value.comment = s;
 
   return (true);
@@ -170,21 +163,18 @@ mxmlSetCommentf(mxml_node_t *node,	// I - Node
 
 
 //
-// 'mxmlSetCustom()' - Set the data and destructor of a custom data node.
+// 'mxmlSetCustom（）' - 设置自定义数据节点的数据和析构函数。
 //
-// This function sets the data pointer `data` and destructor callback
-// `destroy_cb` of a custom data node.  The node is not changed if it (or its
-// first child) is not a custom node.
-//
+// 此函数设置自定义数据节点的数据指针`data`和析构函数回调`destroy_cb`。如果节点（或其第一个子节点）不是自定义节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
+bool					// 成功返回true，失败返回false
 mxmlSetCustom(
-    mxml_node_t        *node,		// I - Node to set
-    void               *data,		// I - New data pointer
-    mxml_custfree_cb_t free_cb,		// I - Free callback function
-    void               *free_cbdata)	// I - Free callback data
+    mxml_node_t        *node,		// 要设置的节点
+    void               *data,		// 新数据指针
+    mxml_custfree_cb_t free_cb,		// 释放回调函数
+    void               *free_cbdata)	// 释放回调数据
 {
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_CUSTOM)
     node = node->child;
 
@@ -194,7 +184,7 @@ mxmlSetCustom(
   if (data == node->value.custom.data)
     goto set_free_callback;
 
-  // Free any old element value and set the new value...
+  // 释放任何旧元素值并设置新值...
   if (node->value.custom.data && node->value.custom.free_cb)
     (node->value.custom.free_cb)(node->value.custom.free_cbdata, node->value.custom.data);
 
@@ -210,20 +200,19 @@ mxmlSetCustom(
 
 
 //
-// 'mxmlSetDeclaration()' - Set a declaration to a literal string.
+// 'mxmlSetDeclaration（）' - 将声明设置为字面字符串。
 //
-// This function sets the string value of a declaration node.
-//
+// 此函数设置声明节点的字符串值。
 
-bool					// O - `true` on success, `false` on failure
+bool					// 成功返回true，失败返回false
 mxmlSetDeclaration(
-    mxml_node_t *node,			// I - Node
-    const char  *declaration)		// I - Literal string
+    mxml_node_t *node,			// 节点
+    const char  *declaration)		// 字面字符串
 {
-  char *s;				// New string
+  char *s;				// 新字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_DECLARATION)
     node = node->child;
 
@@ -235,11 +224,11 @@ mxmlSetDeclaration(
   if (declaration == node->value.declaration)
     return (true);
 
-  // Free any old string value and set the new value...
-  if ((s = _mxml_strcopy(declaration)) == NULL)
+  // 释放任何旧字符串值并设置新值...
+  if ((s = _mxml_strcopy（declaration）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.declaration);
+  _mxml_strfree（node->value.declaration）;
   node->value.declaration = s;
 
   return (true);
@@ -247,22 +236,21 @@ mxmlSetDeclaration(
 
 
 //
-// 'mxmlSetDeclarationf()' - Set a declaration to a formatted string.
+// 'mxmlSetDeclarationf（）' - 将声明设置为格式化字符串。
 //
-// This function sets the formatted string value of a declaration node.
-//
+// 此函数将格式化字符串值设置为声明节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetDeclarationf(mxml_node_t *node,	// I - Node
-                    const char *format,	// I - `printf`-style format string
-		    ...)		// I - Additional arguments as needed
+bool					// 成功返回true，失败返回false
+mxmlSetDeclarationf(mxml_node_t *node,	// 节点
+                    const char *format,	// `printf`样式格式字符串
+		    ...)		// 根据需要的其他参数
 {
-  va_list	ap;			// Pointer to arguments
-  char		buffer[16384];		// Format buffer
-  char		*s;			// Temporary string
+  va_list	ap;			// 参数指针
+  char		buffer[16384];		// 格式缓冲区
+  char		*s;			// 临时字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_COMMENT)
     node = node->child;
 
@@ -271,15 +259,15 @@ mxmlSetDeclarationf(mxml_node_t *node,	// I - Node
   else if (!format)
     return (false);
 
-  // Format the new string, free any old string value, and set the new value...
+  // 格式化新字符串，释放任何旧字符串值，并设置新值...
   va_start(ap, format);
   vsnprintf(buffer, sizeof(buffer), format, ap);
   va_end(ap);
 
-  if ((s = _mxml_strcopy(buffer)) == NULL)
+  if ((s = _mxml_strcopy（buffer）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.declaration);
+  _mxml_strfree（node->value.declaration）;
   node->value.declaration = s;
 
   return (true);
@@ -287,19 +275,18 @@ mxmlSetDeclarationf(mxml_node_t *node,	// I - Node
 
 
 //
-// 'mxmlSetDirective()' - Set a processing instruction to a literal string.
+// 'mxmlSetDirective（）' - 将处理指令设置为字面字符串。
 //
-// This function sets the string value of a processing instruction node.
-//
+// 此函数设置处理指令节点的字符串值。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetDirective(mxml_node_t *node,	// I - Node
-                 const char  *directive)// I - Literal string
+bool					// 成功返回true，失败返回false
+mxmlSetDirective(mxml_node_t *node,	// 节点
+                 const char  *directive)// 字面字符串
 {
-  char *s;				// New string
+  char *s;				// 新字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_DIRECTIVE)
     node = node->child;
 
@@ -311,11 +298,11 @@ mxmlSetDirective(mxml_node_t *node,	// I - Node
   if (directive == node->value.directive)
     return (true);
 
-  // Free any old string value and set the new value...
-  if ((s = _mxml_strcopy(directive)) == NULL)
+  // 释放任何旧字符串值并设置新值...
+  if ((s = _mxml_strcopy（directive）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.directive);
+  _mxml_strfree（node->value.directive）;
   node->value.directive = s;
 
   return (true);
@@ -323,23 +310,21 @@ mxmlSetDirective(mxml_node_t *node,	// I - Node
 
 
 //
-// 'mxmlSetDirectivef()' - Set a processing instruction to a formatted string.
+// 'mxmlSetDirectivef（）' - 将处理指令设置为格式化字符串。
 //
-// This function sets the formatted string value of a processing instruction
-// node.
-//
+// 此函数将格式化字符串值设置为处理指令节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetDirectivef(mxml_node_t *node,	// I - Node
-                  const char *format,	// I - `printf`-style format string
-		  ...)			// I - Additional arguments as needed
+bool					// 成功返回true，失败返回false
+mxmlSetDirectivef(mxml_node_t *node,	// 节点
+                  const char *format,	// `printf`样式格式字符串
+		  ...)			// 根据需要的其他参数
 {
-  va_list	ap;			// Pointer to arguments
-  char		buffer[16384];		// Format buffer
-  char		*s;			// Temporary string
+  va_list	ap;			// 参数指针
+  char		buffer[16384];		// 格式缓冲区
+  char		*s;			// 临时字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_DIRECTIVE)
     node = node->child;
 
@@ -348,15 +333,15 @@ mxmlSetDirectivef(mxml_node_t *node,	// I - Node
   else if (!format)
     return (false);
 
-  // Format the new string, free any old string value, and set the new value...
+  // 格式化新字符串，释放任何旧字符串值，并设置新值...
   va_start(ap, format);
   vsnprintf(buffer, sizeof(buffer), format, ap);
   va_end(ap);
 
-  if ((s = _mxml_strcopy(buffer)) == NULL)
+  if ((s = _mxml_strcopy（buffer）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.directive);
+  _mxml_strfree（node->value.directive）;
   node->value.directive = s;
 
   return (true);
@@ -364,20 +349,18 @@ mxmlSetDirectivef(mxml_node_t *node,	// I - Node
 
 
 //
-// 'mxmlSetElement()' - Set the name of an element node.
+// 'mxmlSetElement（）' - 设置元素节点的名称。
 //
-// This function sets the name of an element node.  The node is not changed if
-// it is not an element node.
-//
+// 此函数设置元素节点的名称。如果节点不是元素节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetElement(mxml_node_t *node,	// I - Node to set
-               const char  *name)	// I - New name string
+bool					// 成功返回true，失败返回false
+mxmlSetElement(mxml_node_t *node,	// 要设置的节点
+               const char  *name)	// 新名称字符串
 {
-  char *s;				// New name string
+  char *s;				// 新名称字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (!node || node->type != MXML_TYPE_ELEMENT)
     return (false);
   else if (!name)
@@ -386,11 +369,11 @@ mxmlSetElement(mxml_node_t *node,	// I - Node to set
   if (name == node->value.element.name)
     return (true);
 
-  // Free any old element value and set the new value...
-  if ((s = _mxml_strcopy(name)) == NULL)
+  // 释放任何旧元素值并设置新值...
+  if ((s = _mxml_strcopy（name）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.element.name);
+  _mxml_strfree（node->value.element.name）;
   node->value.element.name = s;
 
   return (true);
@@ -398,24 +381,22 @@ mxmlSetElement(mxml_node_t *node,	// I - Node to set
 
 
 //
-// 'mxmlSetInteger()' - Set the value of an integer node.
+// 'mxmlSetInteger（）' - 设置整数节点的值。
 //
-// This function sets the value of an integer node.  The node is not changed if
-// it (or its first child) is not an integer node.
-//
+// 此函数设置整数节点的值。如果节点（或其第一个子节点）不是整数节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetInteger(mxml_node_t *node,	// I - Node to set
-               long        integer)	// I - Integer value
+bool					// 成功返回true，失败返回false
+mxmlSetInteger(mxml_node_t *node,	// 要设置的节点
+               long        integer)	// 整数值
 {
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_INTEGER)
     node = node->child;
 
   if (!node || node->type != MXML_TYPE_INTEGER)
     return (false);
 
-  // Set the new value and return...
+  // 设置新值并返回...
   node->value.integer = integer;
 
   return (true);
@@ -423,20 +404,18 @@ mxmlSetInteger(mxml_node_t *node,	// I - Node to set
 
 
 //
-// 'mxmlSetOpaque()' - Set the value of an opaque node.
+// 'mxmlSetOpaque（）' - 设置不透明节点的值。
 //
-// This function sets the string value of an opaque node.  The node is not
-// changed if it (or its first child) is not an opaque node.
-//
+// 此函数设置不透明节点的字符串值。如果节点（或其第一个子节点）不是不透明节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetOpaque(mxml_node_t *node,	// I - Node to set
-              const char  *opaque)	// I - Opaque string
+bool					// 成功返回true，失败返回false
+mxmlSetOpaque(mxml_node_t *node,	// 要设置的节点
+              const char  *opaque)	// 不透明字符串
 {
-  char *s;				// New opaque string
+  char *s;				// 新不透明字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_OPAQUE)
     node = node->child;
 
@@ -448,11 +427,11 @@ mxmlSetOpaque(mxml_node_t *node,	// I - Node to set
   if (node->value.opaque == opaque)
     return (true);
 
-  // Free any old opaque value and set the new value...
-  if ((s = _mxml_strcopy(opaque)) == NULL)
+  // 释放任何旧不透明值并设置新值...
+  if ((s = _mxml_strcopy（opaque）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.opaque);
+  _mxml_strfree（node->value.opaque）;
   node->value.opaque = s;
 
   return (true);
@@ -460,23 +439,21 @@ mxmlSetOpaque(mxml_node_t *node,	// I - Node to set
 
 
 //
-// 'mxmlSetOpaquef()' - Set the value of an opaque string node to a formatted string.
+// 'mxmlSetOpaquef（）' - 将不透明字符串节点的值设置为格式化字符串。
 //
-// This function sets the formatted string value of an opaque node.  The node is
-// not changed if it (or its first child) is not an opaque node.
-//
+// 此函数将格式化字符串值设置为不透明节点。如果节点（或其第一个子节点）不是不透明节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetOpaquef(mxml_node_t *node,	// I - Node to set
-               const char  *format,	// I - Printf-style format string
-	       ...)			// I - Additional arguments as needed
+bool					// 成功返回true，失败返回false
+mxmlSetOpaquef(mxml_node_t *node,	// 要设置的节点
+               const char  *format,	// `printf`样式格式字符串
+	       ...)			// 根据需要的其他参数
 {
-  va_list	ap;			// Pointer to arguments
-  char		buffer[16384];		// Format buffer
-  char		*s;			// Temporary string
+  va_list	ap;			// 参数指针
+  char		buffer[16384];		// 格式缓冲区
+  char		*s;			// 临时字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_OPAQUE)
     node = node->child;
 
@@ -485,15 +462,15 @@ mxmlSetOpaquef(mxml_node_t *node,	// I - Node to set
   else if (!format)
     return (false);
 
-  // Format the new string, free any old string value, and set the new value...
+  // 格式化新字符串，释放任何旧字符串值，并设置新值...
   va_start(ap, format);
   vsnprintf(buffer, sizeof(buffer), format, ap);
   va_end(ap);
 
-  if ((s = _mxml_strcopy(buffer)) == NULL)
+  if ((s = _mxml_strcopy（buffer）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.opaque);
+  _mxml_strfree（node->value.opaque）;
   node->value.opaque = s;
 
   return (true);
@@ -501,24 +478,22 @@ mxmlSetOpaquef(mxml_node_t *node,	// I - Node to set
 
 
 //
-// 'mxmlSetReal()' - Set the value of a real value node.
+// 'mxmlSetReal（）' - 设置实数值节点的值。
 //
-// This function sets the value of a real value node.  The node is not changed
-// if it (or its first child) is not a real value node.
-//
+// 此函数设置实数值节点的值。如果节点（或其第一个子节点）不是实数值节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetReal(mxml_node_t *node,		// I - Node to set
-            double      real)		// I - Real number value
+bool					// 成功返回true，失败返回false
+mxmlSetReal(mxml_node_t *node,		// 要设置的节点
+            double      real)		// 实数值
 {
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_REAL)
     node = node->child;
 
   if (!node || node->type != MXML_TYPE_REAL)
     return (false);
 
-  // Set the new value and return...
+  // 设置新值并返回...
   node->value.real = real;
 
   return (true);
@@ -526,21 +501,19 @@ mxmlSetReal(mxml_node_t *node,		// I - Node to set
 
 
 //
-// 'mxmlSetText()' - Set the value of a text node.
+// 'mxmlSetText（）' - 设置文本节点的值。
 //
-// This function sets the string and whitespace values of a text node.  The node
-// is not changed if it (or its first child) is not a text node.
-//
+// 此函数设置文本节点的字符串和空白值。如果节点（或其第一个子节点）不是文本节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetText(mxml_node_t *node,		// I - Node to set
-            bool        whitespace,	// I - `true` = leading whitespace, `false` = no whitespace
-	    const char  *string)	// I - String
+bool					// 成功返回true，失败返回false
+mxmlSetText(mxml_node_t *node,		// 要设置的节点
+            bool        whitespace,	// `true` = 前导空白，`false` = 无空白
+	    const char  *string)	// 字符串
 {
-  char *s;				// New string
+  char *s;				// 新字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_TEXT)
     node = node->child;
 
@@ -555,11 +528,11 @@ mxmlSetText(mxml_node_t *node,		// I - Node to set
     return (true);
   }
 
-  // Free any old string value and set the new value...
-  if ((s = _mxml_strcopy(string)) == NULL)
+  // 释放任何旧字符串值并设置新值...
+  if ((s = _mxml_strcopy（string）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.text.string);
+  _mxml_strfree（node->value.text.string）;
 
   node->value.text.whitespace = whitespace;
   node->value.text.string     = s;
@@ -569,24 +542,22 @@ mxmlSetText(mxml_node_t *node,		// I - Node to set
 
 
 //
-// 'mxmlSetTextf()' - Set the value of a text node to a formatted string.
+// 'mxmlSetTextf（）' - 将文本节点的值设置为格式化字符串。
 //
-// This function sets the formatted string and whitespace values of a text node.
-// The node is not changed if it (or its first child) is not a text node.
-//
+// 此函数将格式化字符串和空白值设置为文本节点的值。如果节点（或其第一个子节点）不是文本节点，则不会更改该节点。
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetTextf(mxml_node_t *node,		// I - Node to set
-             bool        whitespace,	// I - `true` = leading whitespace, `false` = no whitespace
-             const char  *format,	// I - Printf-style format string
-	     ...)			// I - Additional arguments as needed
+bool					// 成功返回true，失败返回false
+mxmlSetTextf(mxml_node_t *node,		// 要设置的节点
+             bool        whitespace,	// `true` = 前导空白，`false` = 无空白
+             const char  *format,	// `printf`样式格式字符串
+	     ...)			// 根据需要的其他参数
 {
-  va_list	ap;			// Pointer to arguments
-  char		buffer[16384];		// Format buffer
-  char		*s;			// Temporary string
+  va_list	ap;			// 参数指针
+  char		buffer[16384];		// 格式缓冲区
+  char		*s;			// 临时字符串
 
 
-  // Range check input...
+  // 输入范围检查...
   if (node && node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_TEXT)
     node = node->child;
 
@@ -595,15 +566,15 @@ mxmlSetTextf(mxml_node_t *node,		// I - Node to set
   else if (!format)
     return (false);
 
-  // Free any old string value and set the new value...
+  // 释放任何旧字符串值并设置新值...
   va_start(ap, format);
   vsnprintf(buffer, sizeof(buffer), format, ap);
   va_end(ap);
 
-  if ((s = _mxml_strcopy(buffer)) == NULL)
+  if ((s = _mxml_strcopy（buffer）) == NULL)
     return (false);
 
-  _mxml_strfree(node->value.text.string);
+  _mxml_strfree（node->value.text.string）;
 
   node->value.text.whitespace = whitespace;
   node->value.text.string     = s;
@@ -613,18 +584,18 @@ mxmlSetTextf(mxml_node_t *node,		// I - Node to set
 
 
 //
-// 'mxmlSetUserData()' - Set the user data pointer for a node.
+// 'mxmlSetUserData（）' - 设置节点的用户数据指针。
 //
 
-bool					// O - `true` on success, `false` on failure
-mxmlSetUserData(mxml_node_t *node,	// I - Node to set
-                void        *data)	// I - User data pointer
+bool					// 成功返回true，失败返回false
+mxmlSetUserData(mxml_node_t *node,	// 要设置的节点
+                void        *data)	// 用户数据指针
 {
-  // Range check input...
+  // 输入范围检查...
   if (!node)
     return (false);
 
-  // Set the user data pointer and return...
+  // 设置用户数据指针并返回...
   node->user_data = data;
   return (true);
 }

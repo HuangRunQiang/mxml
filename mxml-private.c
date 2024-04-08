@@ -1,29 +1,70 @@
-//
-// Private functions for Mini-XML, a small XML file parsing library.
+// Mini-XML的私有函数，一个小型XML文件解析库。
 //
 // https://www.msweet.org/mxml
 //
-// Copyright © 2003-2024 by Michael R Sweet.
+// 版权所有 © 2003-2024 Michael R Sweet。
 //
-// Licensed under Apache License v2.0.  See the file "LICENSE" for more
-// information.
+// 根据Apache License v2.0许可。有关更多信息，请参阅“LICENSE”文件。
 //
 
 #include "mxml-private.h"
 
 
 //
-// Some crazy people think that unloading a shared object is a good or safe
-// thing to do.  Unfortunately, most objects are simply *not* safe to unload
-// and bad things *will* happen.
+// 一些疯狂的人认为卸载共享对象是一件好事或安全的事情。
+// 不幸的是，大多数对象根本不安全，会发生糟糕的事情。
 //
-// The following mess of conditional code allows us to provide a destructor
-// function in Mini-XML for our thread-global storage so that it can possibly
-// be unloaded safely, although since there is no standard way to do so I
-// can't even provide any guarantees that you can do it safely on all platforms.
+// 下面这段混乱的条件代码允许我们为Mini-XML提供一个析构函数，用于处理我们的线程全局存储，
+// 以便可能安全地卸载它，尽管由于没有标准的方法来做到这一点，我甚至不能保证在所有平台上都可以安全地执行。
 //
-// This code currently supports AIX, HP-UX, Linux, macOS, Solaris, and
-// Windows.  It might work on the BSDs and IRIX, but I haven't tested that.
+// 此代码目前支持AIX、HP-UX、Linux、macOS、Solaris和Windows。
+// 它可能适用于BSD和IRIX，但我没有测试过。
+//
+
+// Mini-XML的私有函数，一个小型XML文件解析库。
+//
+// https://www.msweet.org/mxml
+//
+// 版权所有 © 2003-2024 Michael R Sweet。
+//
+// 根据Apache License v2.0许可。有关更多信息，请参阅“LICENSE”文件。
+//
+
+#include "mxml-private.h"
+
+
+//
+// 一些疯狂的人认为卸载共享对象是一件好事或安全的事情。
+// 不幸的是，大多数对象根本不安全，会发生糟糕的事情。
+//
+// 下面这段混乱的条件代码允许我们为Mini-XML提供一个析构函数，用于处理我们的线程全局存储，
+// 以便可能安全地卸载它，尽管由于没有标准的方法来做到这一点，我甚至不能保证在所有平台上都可以安全地执行。
+//
+// 此代码目前支持AIX、HP-UX、Linux、macOS、Solaris和Windows。
+// 它可能适用于BSD和IRIX，但我没有测试过。
+//
+
+// Mini-XML的私有函数，一个小型XML文件解析库。
+//
+// https://www.msweet.org/mxml
+//
+// 版权所有 © 2003-2024 Michael R Sweet。
+//
+// 根据Apache License v2.0许可。有关更多信息，请参阅“LICENSE”文件。
+//
+
+#include "mxml-private.h"
+
+
+//
+// 一些疯狂的人认为卸载共享对象是一件好事或安全的事情。
+// 不幸的是，大多数对象根本不安全，会发生糟糕的事情。
+//
+// 下面这段混乱的条件代码允许我们为Mini-XML提供一个析构函数，用于处理我们的线程全局存储，
+// 以便可能安全地卸载它，尽管由于没有标准的方法来做到这一点，我甚至不能保证在所有平台上都可以安全地执行。
+//
+// 此代码目前支持AIX、HP-UX、Linux、macOS、Solaris和Windows。
+// 它可能适用于BSD和IRIX，但我没有测试过。
 //
 
 #if defined(__sun) || defined(_AIX)
@@ -39,38 +80,33 @@
 #endif // __sun
 
 
+// 'mxmlSetStringCallbacks()' - 设置字符串复制/释放的回调函数。
 //
-// 'mxmlSetStringCallbacks()' - Set the string copy/free callback functions.
-//
-// This function sets the string copy/free callback functions for the current
-// thread.  The `strcopy_cb` function makes a copy of the provided string while
-// the `strfree_cb` function frees the copy.  Each callback accepts the
-// `str_cbdata` pointer along with the pointer to the string:
+// 此函数为当前线程设置字符串复制/释放的回调函数。`strcopy_cb`函数用于复制提供的字符串，而`strfree_cb`函数用于释放复制的字符串。
+// 每个回调函数都接受`str_cbdata`指针和字符串指针作为参数：
 //
 // ```c
 // char *my_strcopy_cb(void *cbdata, const char *s)
 // {
-//   ... make a copy of "s" ...
+//   ... 复制字符串 "s" ...
 // }
 //
 // void my_strfree_cb(void *cbdata, char *s)
 // {
-//   ... release the memory used by "s" ...
+//   ... 释放字符串 "s" 使用的内存 ...
 // }
 // ```
 //
-// The default `strcopy_cb` function calls `strdup` while the default
-// `strfree_cb` function calls `free`.
-//
+// 默认的`strcopy_cb`函数调用`strdup`，而默认的`strfree_cb`函数调用`free`。
 
 void
 mxmlSetStringCallbacks(
-    mxml_strcopy_cb_t strcopy_cb,	// I - String copy callback function
-    mxml_strfree_cb_t strfree_cb,	// I - String free callback function
-    void              *str_cbdata)	// I - String callback data
+    mxml_strcopy_cb_t strcopy_cb,	// 输入 - 字符串复制回调函数
+    mxml_strfree_cb_t strfree_cb,	// 输入 - 字符串释放回调函数
+    void              *str_cbdata)	// 输入 - 字符串回调数据
 {
   _mxml_global_t *global = _mxml_global();
-					// Global data
+					// 全局数据
 
 
   global->strcopy_cb = strcopy_cb;
@@ -80,14 +116,14 @@ mxmlSetStringCallbacks(
 
 
 //
-// '_mxml_strcopy()' - Copy a string.
+// '_mxml_strcopy()' - 复制字符串。
 //
 
-char *					// O - Copy of string
-_mxml_strcopy(const char *s)		// I - String
+char *					// 输出 - 字符串的副本
+_mxml_strcopy(const char *s)		// 输入 - 字符串
 {
   _mxml_global_t *global = _mxml_global();
-					// Global data
+					// 全局数据
 
 
   if (!s)
@@ -99,16 +135,14 @@ _mxml_strcopy(const char *s)		// I - String
     return (strdup(s));
 }
 
-
-//
-// '_mxml_strfree()' - Free a string.
+// '_mxml_strfree()' - 释放字符串。
 //
 
 void
-_mxml_strfree(char *s)			// I - String
+_mxml_strfree(char *s)			// 输入 - 字符串
 {
   _mxml_global_t *global = _mxml_global();
-					// Global data
+					// 全局数据
 
 
   if (!s)
@@ -121,31 +155,31 @@ _mxml_strfree(char *s)			// I - String
 }
 
 
-#ifdef HAVE_PTHREAD_H			// POSIX threading
+#ifdef HAVE_PTHREAD_H			// POSIX 线程
 #  include <pthread.h>
 
 static int		_mxml_initialized = 0;
-					// Have we been initialized?
-static pthread_key_t	_mxml_key;	// Thread local storage key
+					// 是否已初始化
+static pthread_key_t	_mxml_key;	// 线程局部存储键
 static pthread_once_t	_mxml_key_once = PTHREAD_ONCE_INIT;
-					// One-time initialization object
+					// 一次性初始化对象
 static void		_mxml_init(void);
 static void		_mxml_destructor(void *g);
 
 
 //
-// '_mxml_destructor()' - Free memory used for globals...
+// '_mxml_destructor()' - 释放全局数据使用的内存...
 //
 
 static void
-_mxml_destructor(void *g)		// I - Global data
+_mxml_destructor(void *g)		// 输入 - 全局数据
 {
   free(g);
 }
 
 
 //
-// '_mxml_fini()' - Clean up when unloaded.
+// '_mxml_fini()' - 卸载时进行清理。
 //
 
 static void
@@ -157,13 +191,13 @@ _MXML_FINI(void)
 
 
 //
-// '_mxml_global()' - Get global data.
+// '_mxml_global()' - 获取全局数据。
 //
 
-_mxml_global_t *			// O - Global data
+_mxml_global_t *			// 输出 - 全局数据
 _mxml_global(void)
 {
-  _mxml_global_t	*global;	// Global data
+  _mxml_global_t	*global;	// 全局数据
 
 
   pthread_once(&_mxml_key_once, _mxml_init);
@@ -179,7 +213,7 @@ _mxml_global(void)
 
 
 //
-// '_mxml_init()' - Initialize global data...
+// '_mxml_init()' - 初始化全局数据...
 //
 
 static void
@@ -190,22 +224,21 @@ _mxml_init(void)
 }
 
 
-#elif defined(_WIN32) && defined(MXML1_EXPORTS) // WIN32 threading
+#elif defined(_WIN32) && defined(MXML1_EXPORTS) // WIN32 线程
 #  include <windows.h>
 
-static DWORD _mxml_tls_index;		// Index for global storage
+static DWORD _mxml_tls_index;		// 全局存储的索引
 
 
+// 'DllMain()' - 库的主要入口点。
 //
-// 'DllMain()' - Main entry for library.
-//
 
-BOOL WINAPI				// O - Success/failure
-DllMain(HINSTANCE hinst,		// I - DLL module handle
-        DWORD     reason,		// I - Reason
-        LPVOID    reserved)		// I - Unused
+BOOL WINAPI				// 输出 - 成功/失败
+DllMain(HINSTANCE hinst,		// 输入 - DLL 模块句柄
+        DWORD     reason,		// 输入 - 原因
+        LPVOID    reserved)		// 输入 - 未使用
 {
-  _mxml_global_t	*global;	// Global data
+  _mxml_global_t	*global;	// 全局数据
 
 
   (void)hinst;
@@ -213,17 +246,17 @@ DllMain(HINSTANCE hinst,		// I - DLL module handle
 
   switch (reason)
   {
-    case DLL_PROCESS_ATTACH :		// Called on library initialization
+    case DLL_PROCESS_ATTACH :		// 在库初始化时调用
         if ((_mxml_tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES)
           return (FALSE);
         break;
 
-    case DLL_THREAD_DETACH :		// Called when a thread terminates
+    case DLL_THREAD_DETACH :		// 在线程终止时调用
         if ((global = (_mxml_global_t *)TlsGetValue(_mxml_tls_index)) != NULL)
           free(global);
         break;
 
-    case DLL_PROCESS_DETACH :		// Called when library is unloaded
+    case DLL_PROCESS_DETACH :		// 在卸载库时调用
         if ((global = (_mxml_global_t *)TlsGetValue(_mxml_tls_index)) != NULL)
           free(global);
 
@@ -239,13 +272,13 @@ DllMain(HINSTANCE hinst,		// I - DLL module handle
 
 
 //
-// '_mxml_global()' - Get global data.
+// '_mxml_global()' - 获取全局数据。
 //
 
-_mxml_global_t *			// O - Global data
+_mxml_global_t *			// 输出 - 全局数据
 _mxml_global(void)
 {
-  _mxml_global_t	*global;	// Global data
+  _mxml_global_t	*global;	// 全局数据
 
 
   if ((global = (_mxml_global_t *)TlsGetValue(_mxml_tls_index)) == NULL)
@@ -259,15 +292,15 @@ _mxml_global(void)
 }
 
 
-#else					// No threading
+#else					// 无线程支持
 //
-// '_mxml_global()' - Get global data.
+// '_mxml_global()' - 获取全局数据。
 //
 
-_mxml_global_t *			// O - Global data
+_mxml_global_t *			// 输出 - 全局数据
 _mxml_global(void)
 {
-  static _mxml_global_t	global =	// Global data
+  static _mxml_global_t	global =	// 全局数据
   {
     NULL,				// strcopy_cb
     NULL,				// strfree_cb

@@ -1,70 +1,66 @@
 //
-// Node get functions for Mini-XML, a small XML file parsing library.
+// Mini-XML 的节点获取函数，它是一个小型的 XML 文件解析库。
 //
 // https://www.msweet.org/mxml
 //
-// Copyright © 2014-2024 by Michael R Sweet.
+// 版权所有 © 2014-2024 Michael R Sweet。
 //
-// Licensed under Apache License v2.0.  See the file "LICENSE" for more
-// information.
+// 根据 Apache License v2.0 许可。有关更多信息，请参阅 "LICENSE" 文件。
 //
 
 #include "mxml-private.h"
 
 
 //
-// 'mxmlGetCDATA()' - Get the value for a CDATA node.
+// 'mxmlGetCDATA()' - 获取 CDATA 节点的值。
 //
-// This function gets the string value of a CDATA node.  `NULL` is returned if
-// the node is not a CDATA element.
+// 此函数获取 CDATA 节点的字符串值。如果节点不是 CDATA 元素，则返回 `NULL`。
 //
 
-const char *				// O - CDATA value or `NULL`
-mxmlGetCDATA(mxml_node_t *node)		// I - Node to get
+const char *				// O - CDATA 值或 `NULL`
+mxmlGetCDATA(mxml_node_t *node)		// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node || node->type != MXML_TYPE_CDATA)
     return (NULL);
 
-  // Return the CDATA string...
+  // 返回 CDATA 字符串...
   return (node->value.cdata);
 }
 
 
 //
-// 'mxmlGetComment()' - Get the value for a comment node.
+// 'mxmlGetComment()' - 获取注释节点的值。
 //
-// This function gets the string value of a comment node.  `NULL` is returned
-// if the node is not a comment.
+// 此函数获取注释节点的字符串值。如果节点不是注释，则返回 `NULL`。
 //
 
-const char *				// O - Comment value or `NULL`
-mxmlGetComment(mxml_node_t *node)	// I - Node to get
+const char *				// O - 注释值或 `NULL`
+mxmlGetComment(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node || node->type != MXML_TYPE_COMMENT)
     return (NULL);
 
-  // Return the comment string...
+  // 返回注释字符串...
   return (node->value.comment);
 }
 
 
 //
-// 'mxmlGetCustom()' - Get the value for a custom node.
+// 'mxmlGetCustom()' - 获取自定义节点的值。
 //
-// This function gets the binary value of a custom node.  `NULL` is returned if
-// the node (or its first child) is not a custom value node.
+// 此函数获取自定义节点的二进制值。如果节点（或其第一个子节点）不是自定义值节点，则返回 `NULL`。
 //
 
-const void *				// O - Custom value or `NULL`
-mxmlGetCustom(mxml_node_t *node)	// I - Node to get
+const void *				// O - 自定义值或 `NULL`
+mxmlGetCustom(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node)
     return (NULL);
 
-  // Return the custom value...
+  // 返回自定义值...
   if (node->type == MXML_TYPE_CUSTOM)
     return (node->value.custom.data);
   else if (node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_CUSTOM)
@@ -75,93 +71,87 @@ mxmlGetCustom(mxml_node_t *node)	// I - Node to get
 
 
 //
-// 'mxmlGetDeclaration()' - Get the value for a declaration node.
+// 'mxmlGetDeclaration()' - 获取声明节点的值。
 //
-// This function gets the string value of a declaraction node.  `NULL` is
-// returned if the node is not a declaration.
+// 此函数获取声明节点的字符串值。如果节点不是声明，则返回 `NULL`。
 //
 
-const char *				// O - Declaraction value or `NULL`
-mxmlGetDeclaration(mxml_node_t *node)	// I - Node to get
+const char *				// O - 声明值或 `NULL`
+mxmlGetDeclaration(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node || node->type != MXML_TYPE_DECLARATION)
     return (NULL);
 
-  // Return the comment string...
+  // 返回注释字符串...
   return (node->value.declaration);
 }
 
 
 //
-// 'mxmlGetDirective()' - Get the value for a processing instruction node.
+// 'mxmlGetDirective()' - 获取处理指令节点的值。
 //
-// This function gets the string value of a processing instruction.  `NULL` is
-// returned if the node is not a processing instruction.
+// 此函数获取处理指令的字符串值。如果节点不是处理指令，则返回 `NULL`。
 //
 
-const char *				// O - Comment value or `NULL`
-mxmlGetDirective(mxml_node_t *node)	// I - Node to get
+const char *				// O - 注释值或 `NULL`
+mxmlGetDirective(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node || node->type != MXML_TYPE_DIRECTIVE)
     return (NULL);
 
-  // Return the comment string...
+  // 返回注释字符串...
   return (node->value.directive);
 }
 
 
 //
-// 'mxmlGetElement()' - Get the name for an element node.
+// 'mxmlGetElement()' - 获取元素节点的名称。
 //
-// This function gets the name of an element node.  `NULL` is returned if the
-// node is not an element node.
+// 此函数获取元素节点的名称。如果节点不是元素节点，则返回 `NULL`。
 //
 
-const char *				// O - Element name or `NULL`
-mxmlGetElement(mxml_node_t *node)	// I - Node to get
+const char *				// O - 元素名称或 `NULL`
+mxmlGetElement(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node || node->type != MXML_TYPE_ELEMENT)
     return (NULL);
 
-  // Return the element name...
+  // 返回元素名称...
   return (node->value.element.name);
 }
 
 
 //
-// 'mxmlGetFirstChild()' - Get the first child of a node.
+// 'mxmlGetFirstChild()' - 获取节点的第一个子节点。
 //
-// This function gets the first child of a node.  `NULL` is returned if the node
-// has no children.
+// 此函数获取节点的第一个子节点。如果节点没有子节点，则返回 `NULL`。
 //
 
-mxml_node_t *				// O - First child or `NULL`
-mxmlGetFirstChild(mxml_node_t *node)	// I - Node to get
+mxml_node_t *				// O - 第一个子节点或 `NULL`
+mxmlGetFirstChild(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Return the first child node...
+  // 返回第一个子节点...
   return (node ? node->child : NULL);
 }
 
 
 //
-// 'mxmlGetInteger()' - Get the integer value from the specified node or its
-//                      first child.
+// 'mxmlGetInteger()' - 获取指定节点或其第一个子节点的整数值。
 //
-// This function gets the value of an integer node.  `0` is returned if the node
-// (or its first child) is not an integer value node.
+// 此函数获取整数节点的值。如果节点（或其第一个子节点）不是整数值节点，则返回 `0`。
 //
 
-long					// O - Integer value or `0`
-mxmlGetInteger(mxml_node_t *node)	// I - Node to get
+long					// O - 整数值或 `0`
+mxmlGetInteger(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node)
     return (0);
 
-  // Return the integer value...
+  // 返回整数值...
   if (node->type == MXML_TYPE_INTEGER)
     return (node->value.integer);
   else if (node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_INTEGER)
@@ -172,48 +162,45 @@ mxmlGetInteger(mxml_node_t *node)	// I - Node to get
 
 
 //
-// 'mxmlGetLastChild()' - Get the last child of a node.
+// 'mxmlGetLastChild()' - 获取节点的最后一个子节点。
 //
-// This function gets the last child of a node.  `NULL` is returned if the node
-// has no children.
+// 此函数获取节点的最后一个子节点。如果节点没有子节点，则返回 `NULL`。
 //
 
-mxml_node_t *				// O - Last child or `NULL`
-mxmlGetLastChild(mxml_node_t *node)	// I - Node to get
+mxml_node_t *				// O - 最后一个子节点或 `NULL`
+mxmlGetLastChild(mxml_node_t *node)	// I - 要获取的节点
 {
   return (node ? node->last_child : NULL);
 }
 
 
 //
-// 'mxmlGetNextSibling()' - Get the next node for the current parent.
+// 'mxmlGetNextSibling()' - 获取当前父节点的下一个节点。
 //
-// This function gets the next node for the current parent.  `NULL` is returned
-// if this is the last child for the current parent.
+// 此函数获取当前父节点的下一个节点。如果这是当前父节点的最后一个子节点，则返回 `NULL`。
 //
 
 mxml_node_t *
-mxmlGetNextSibling(mxml_node_t *node)	// I - Node to get
+mxmlGetNextSibling(mxml_node_t *node)	// I - 要获取的节点
 {
   return (node ? node->next : NULL);
 }
 
 
 //
-// 'mxmlGetOpaque()' - Get an opaque string value for a node or its first child.
+// 'mxmlGetOpaque()' - 获取节点或其第一个子节点的不透明字符串值。
 //
-// This function gets the string value of an opaque node.  `NULL` is returned if
-// the node (or its first child) is not an opaque value node.
+// 此函数获取不透明节点的字符串值。如果节点（或其第一个子节点）不是不透明值节点，则返回 `NULL`。
 //
 
-const char *				// O - Opaque string or `NULL`
-mxmlGetOpaque(mxml_node_t *node)	// I - Node to get
+const char *				// O - 不透明字符串或 `NULL`
+mxmlGetOpaque(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node)
     return (NULL);
 
-  // Return the opaque value...
+  // 返回不透明值...
   if (node->type == MXML_TYPE_OPAQUE)
     return (node->value.opaque);
   else if (node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_OPAQUE)
@@ -224,47 +211,45 @@ mxmlGetOpaque(mxml_node_t *node)	// I - Node to get
 
 
 //
-// 'mxmlGetParent()' - Get the parent node.
+// 'mxmlGetParent()' - 获取父节点。
 //
-// This function gets the parent of a node.  `NULL` is returned for a root node.
+// 此函数获取节点的父节点。如果是根节点，则返回 `NULL`。
 //
 
-mxml_node_t *				// O - Parent node or `NULL`
-mxmlGetParent(mxml_node_t *node)	// I - Node to get
+mxml_node_t *				// O - 父节点或 `NULL`
+mxmlGetParent(mxml_node_t *node)	// I - 要获取的节点
 {
   return (node ? node->parent : NULL);
 }
 
 
 //
-// 'mxmlGetPrevSibling()' - Get the previous node for the current parent.
+// 'mxmlGetPrevSibling()' - 获取当前父节点的前一个节点。
 //
-// This function gets the previous node for the current parent.  `NULL` is
-// returned if this is the first child for the current parent.
+// 此函数获取当前父节点的前一个节点。如果这是当前父节点的第一个子节点，则返回 `NULL`。
 //
 
-mxml_node_t *				// O - Previous node or `NULL`
-mxmlGetPrevSibling(mxml_node_t *node)	// I - Node to get
+mxml_node_t *				// O - 前一个节点或 `NULL`
+mxmlGetPrevSibling(mxml_node_t *node)	// I - 要获取的节点
 {
   return (node ? node->prev : NULL);
 }
 
 
 //
-// 'mxmlGetReal()' - Get the real value for a node or its first child.
+// 'mxmlGetReal()' - 获取节点或其第一个子节点的实数值。
 //
-// This function gets the value of a real value node.  `0.0` is returned if the
-// node (or its first child) is not a real value node.
+// 此函数获取实数值节点的值。如果节点（或其第一个子节点）不是实数值节点，则返回 `0.0`。
 //
 
-double					// O - Real value or 0.0
-mxmlGetReal(mxml_node_t *node)		// I - Node to get
+double					// O - 实数值或 0.0
+mxmlGetReal(mxml_node_t *node)		// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node)
     return (0.0);
 
-  // Return the real value...
+  // 返回实数值...
   if (node->type == MXML_TYPE_REAL)
     return (node->value.real);
   else if (node->type == MXML_TYPE_ELEMENT && node->child && node->child->type == MXML_TYPE_REAL)
@@ -275,25 +260,20 @@ mxmlGetReal(mxml_node_t *node)		// I - Node to get
 
 
 //
-// 'mxmlGetText()' - Get the text value for a node or its first child.
+// 'mxmlGetText()' - 获取节点或其第一个子节点的文本值。
 //
-// This function gets the string and whitespace values of a text node.  `NULL`
-// and `false` are returned if the node (or its first child) is not a text node.
-// The `whitespace` argument can be `NULL` if you don't want to know the
-// whitespace value.
+// 此函数获取文本节点的字符串值和空白字符值。如果节点（或其第一个子节点）不是文本节点，则返回 `NULL` 和 `false`。
+// 如果不想获取空白字符值，则可以将 `whitespace` 参数设置为 `NULL`。
 //
-// Note: Text nodes consist of whitespace-delimited words. You will only get
-// single words of text when reading an XML file with `MXML_TYPE_TEXT` nodes.
-// If you want the entire string between elements in the XML file, you MUST read
-// the XML file with `MXML_TYPE_OPAQUE` nodes and get the resulting strings
-// using the @link mxmlGetOpaque@ function instead.
+// 注意：文本节点由空白字符分隔的单词组成。当使用 `MXML_TYPE_TEXT` 节点读取 XML 文件时，您将只获取单个单词的文本。
+// 如果要获取 XML 文件中元素之间的整个字符串，您必须使用 `MXML_TYPE_OPAQUE` 节点读取 XML 文件，并使用 @link mxmlGetOpaque@ 函数获取结果字符串。
 //
 
-const char *				// O - Text string or `NULL`
-mxmlGetText(mxml_node_t *node,		// I - Node to get
-            bool        *whitespace)	// O - `true` if string is preceded by whitespace, `false` otherwise
+const char *				// O - 文本字符串或 `NULL`
+mxmlGetText(mxml_node_t *node,		// I - 要获取的节点
+            bool        *whitespace)	// O - 字符串之前是否有空白字符，`false` 否则为 `true`
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node)
   {
     if (whitespace)
@@ -302,7 +282,7 @@ mxmlGetText(mxml_node_t *node,		// I - Node to get
     return (NULL);
   }
 
-  // Return the integer value...
+  // 返回整数值...
   if (node->type == MXML_TYPE_TEXT)
   {
     if (whitespace)
@@ -328,37 +308,36 @@ mxmlGetText(mxml_node_t *node,		// I - Node to get
 
 
 //
-// 'mxmlGetType()' - Get the node type.
+// 'mxmlGetType()' - 获取节点类型。
 //
-// This function gets the type of `node`.  `MXML_TYPE_IGNORE` is returned if
-// `node` is `NULL`.
+// 此函数获取 `node` 的类型。如果 `node` 是 `NULL`，则返回 `MXML_TYPE_IGNORE`。
 //
 
-mxml_type_t				// O - Type of node
-mxmlGetType(mxml_node_t *node)		// I - Node to get
+mxml_type_t				// O - 节点类型
+mxmlGetType(mxml_node_t *node)		// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node)
     return (MXML_TYPE_IGNORE);
 
-  // Return the node type...
+  // 返回节点类型...
   return (node->type);
 }
 
 
 //
-// 'mxmlGetUserData()' - Get the user data pointer for a node.
+// 'mxmlGetUserData()' - 获取节点的用户数据指针。
 //
-// This function gets the user data pointer associated with `node`.
+// 此函数获取与 `node` 相关联的用户数据指针。
 //
 
-void *					// O - User data pointer
-mxmlGetUserData(mxml_node_t *node)	// I - Node to get
+void *					// O - 用户数据指针
+mxmlGetUserData(mxml_node_t *node)	// I - 要获取的节点
 {
-  // Range check input...
+  // 范围检查输入...
   if (!node)
     return (NULL);
 
-  // Return the user data pointer...
+  // 返回用户数据指针...
   return (node->user_data);
 }
