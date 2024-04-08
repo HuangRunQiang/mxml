@@ -1,134 +1,109 @@
-Mini-XML - Tiny XML Parsing Library v4
+Mini-XML（迷你XML）- 轻量级XML解析库 v4
 ======================================
 
-![Version](https://img.shields.io/github/v/release/michaelrsweet/mxml?include_prereleases)
+![版本](https://img.shields.io/github/v/release/michaelrsweet/mxml?include_prereleases)
 ![Apache 2.0](https://img.shields.io/github/license/michaelrsweet/mxml)
-![Build](https://github.com/michaelrsweet/mxml/workflows/Build/badge.svg)
-[![Coverity Scan Status](https://img.shields.io/coverity/scan/23959.svg)](https://scan.coverity.com/projects/michaelrsweet-mxml)
+![构建](https://github.com/michaelrsweet/mxml/workflows/Build/badge.svg)
+[![Coverity扫描状态](https://img.shields.io/coverity/scan/23959.svg)](https://scan.coverity.com/projects/michaelrsweet-mxml)
 
 
-Mini-XML is a small XML parsing library that you can use to read XML data files
-or strings in your application without requiring large non-standard libraries.
-Mini-XML only requires a "make" program and a C99 compatible compiler - GCC
-works, as do most vendors' C compilers.
+Mini-XML是一个小型的XML解析库，您可以在应用程序中使用它来读取XML数据文件或字符串，而无需依赖大型的非标准库。Mini-XML只需要一个"make"程序和一个符合C99标准的编译器 - GCC可以使用，大多数厂商的C编译器也可以使用。
 
-Mini-XML provides the following functionality:
+Mini-XML提供以下功能：
 
-- Reading of UTF-8 and UTF-16 and writing of UTF-8 encoded XML files and
-  strings.
-- Data is stored in a linked-list tree structure, preserving the XML data
-  hierarchy.
-- SAX (streamed) reading of XML files and strings to minimize memory usage.
-- Supports arbitrary element names, attributes, and attribute values with no
-  preset limits, just available memory.
-- Supports integer, real, opaque, text, and custom data types in "leaf" nodes.
-- Functions for creating and managing trees of data.
-- "Find" and "walk" functions for easily locating and navigating trees of data.
-- Support for custom string memory management functions to implement string
-  pools and other schemes for reducing memory usage.
+- 支持读取UTF-8和UTF-16编码的XML文件和字符串，并支持写入UTF-8编码的XML文件和字符串。
+- 数据以链接列表树结构存储，保留XML数据的层次结构。
+- 支持流式（SAX）读取XML文件和字符串，以最小化内存使用。
+- 支持任意元素名称、属性和属性值，没有预设限制，只受可用内存限制。
+- 在"叶子"节点中支持整数、实数、不透明数据、文本和自定义数据类型。
+- 提供创建和管理数据树的函数。
+- 提供用于查找和遍历数据树的"查找"和"遍历"函数。
+- 支持自定义字符串内存管理函数，以实现字符串池和其他减少内存使用的方案。
 
-Mini-XML doesn't do validation or other types of processing on the data
-based upon schema files or other sources of definition information.
+Mini-XML不进行基于模式文件或其他定义信息源的验证或其他类型的数据处理。
 
-
-Building Mini-XML
+构建Mini-XML
 -----------------
 
-Mini-XML comes with an autoconf-based configure script; just type the
-following command to get things going:
+Mini-XML附带了一个基于autoconf的配置脚本；只需键入以下命令即可开始：
 
     ./configure
 
-The default install prefix is `/usr/local`, which can be overridden using the
-`--prefix` option:
+默认的安装前缀是`/usr/local`，可以使用`--prefix`选项进行覆盖：
 
     ./configure --prefix=/foo
 
-Other configure options can be found using the `--help` option:
+其他配置选项可以使用`--help`选项查看：
 
     ./configure --help
 
-Once you have configured the software, type `make` to do the build and run
-the test program to verify that things are working, as follows:
+配置软件后，键入`make`进行构建，并运行测试程序以验证是否正常工作，如下所示：
 
     make
 
-If you are using Mini-XML under Microsoft Windows with Visual C++, use the
-included project files in the `vcnet` subdirectory to build the library
-instead.  Note: The static library on Windows is NOT thread-safe.
+如果您在Microsoft Windows下使用Visual C++使用Mini-XML，请使用`vcnet`子目录中的项目文件来构建库。注意：Windows上的静态库不是线程安全的。
 
-
-Installing Mini-XML
+安装Mini-XML
 -------------------
 
-The `install` target will install Mini-XML in the lib and include
-directories:
+`install`目标将Mini-XML安装在lib和include目录中：
 
     sudo make install
 
-Once you have installed it, use the `-lmxml` option to link your application
-against it.
+安装完成后，使用`-lmxml`选项将应用程序与Mini-XML进行链接。
 
-
-Documentation
+文档
 -------------
 
-The documentation is available in the `doc` subdirectory in the files
-`mxml.html` (HTML) and `mxml.epub` (EPUB).  You can also look at the
-`testmxml.c` source file for examples of using Mini-XML.
+文档位于`doc`子目录中的`mxml.html`（HTML）和`mxml.epub`（EPUB）文件中。您还可以查看`testmxml.c`源文件，其中包含使用Mini-XML的示例。
 
-Mini-XML provides a single header file which you include:
+Mini-XML提供了一个单独的头文件，您可以包含它：
 
     #include <mxml.h>
 
-Nodes (elements, comments, declarations, integers, opaque strings, processing
-instructions, real numbers, and text strings) are represented by `mxml_node_t`
-pointers.  New nodes can be created using the mxmlNewXxx functions.  The top
-node must be the `<?xml ...?>` processing instruction.
+节点（元素、注释、声明、整数、不透明字符串、处理指令、实数和文本字符串）由`mxml_node_t`指针表示。可以使用mxmlNewXxx函数创建新节点。顶级节点必须是`<?xml ...?>`处理指令。
 
-You load an XML file using the mxmlLoadFilename function:
+您可以使用mxmlLoadFilename函数加载XML文件：
 
     mxml_node_t *tree;
 
     tree = mxmlLoadFilename(/*top*/NULL, /*options*/NULL,
                             "example.xml");
 
-Similarly, you save an XML file using the mxmlSaveFilename function:
+类似地，您可以使用mxmlSaveFilename函数保存XML文件：
 
     mxml_node_t *tree;
 
     mxmlSaveFilename(tree, /*options*/NULL,
                      "filename.xml");
 
-There are variations of these functions for loading from or saving to file
-descriptors, `FILE` pointers, strings, and IO callbacks.
+这些函数还有其他的变体，用于从文件描述符、`FILE`指针、字符串和IO回调进行加载或保存。
 
-You can find a named element/node using the mxmlFindElement function:
+您可以使用mxmlFindElement函数查找具有特定名称的元素/节点：
 
     mxml_node_t *node = mxmlFindElement(tree, tree, "name", "attr",
 					"value", MXML_DESCEND_ALL);
 
-The `name`, `attr`, and `value` arguments can be passed as `NULL` to act as
-wildcards, e.g.:
+`name`、`attr`和`value`参数可以传递`NULL`作为通配符，例如：
 
-    /* Find the first "a" element */
+    /* 查找第一个 "a" 元素 */
     node = mxmlFindElement(tree, tree, "a", NULL, NULL, MXML_DESCEND_ALL);
 
-    /* Find the first "a" element with "href" attribute */
+    /* 查找第一个带有 "href" 属性的 "a" 元素 */
     node = mxmlFindElement(tree, tree, "a", "href", NULL, MXML_DESCEND_ALL);
 
-    /* Find the first "a" element with "href" to a URL */
+    /* 查找第一个带有 "href" 属性且链接到URL的 "a" 元素 */
     node = mxmlFindElement(tree, tree, "a", "href",
                            "https://www.msweet.org/mxml", MXML_DESCEND_ALL);
 
-    /* Find the first element with a "src" attribute*/
+    /* 查找第一个带有 "src" 属性的元素 */
     node = mxmlFindElement(tree, tree, NULL, "src", NULL, MXML_DESCEND_ALL);
 
-    /* Find the first element with a "src" = "foo.jpg" */
+    /* 查找第一个带有 "src" = "foo.jpg" 的元素 */
     node = mxmlFindElement(tree, tree, NULL, "src", "foo.jpg",
                            MXML_DESCEND_ALL);
 
-You can also iterate with the same function:
+您还可以使用相同的函数进行迭代：
 
     mxml_node_t *node;
 
@@ -138,16 +113,14 @@ You can also iterate with the same function:
 	 node = mxmlFindElement(node, tree, "name", NULL, NULL,
 				MXML_DESCEND_ALL))
     {
-      ... do something ...
+      ... 做一些操作 ...
     }
 
-The mxmlFindPath function finds the (first) value node under a specific
-element using an XPath:
+mxmlFindPath函数使用XPath在特定元素下找到（第一个）值节点：
 
     mxml_node_t *value = mxmlFindPath(tree, "path/to/*/foo/bar");
 
-The mxmlGetInteger, mxmlGetOpaque, mxmlGetReal, and mxmlGetText functions
-retrieve the corresponding value from a node:
+mxmlGetInteger、mxmlGetOpaque、mxmlGetReal和mxmlGetText函数从节点中检索相应的值：
 
     mxml_node_t *node;
 
@@ -160,34 +133,24 @@ retrieve the corresponding value from a node:
     bool whitespacevalue;
     const char *textvalue = mxmlGetText(node, &whitespacevalue);
 
-Finally, once you are done with the XML data, use the mxmlDelete function to
-recursively free the memory that is used for a particular node or the entire
-tree:
+最后，当您完成XML数据时，使用mxmlDelete函数递归释放用于特定节点或整个树的内存：
 
     mxmlDelete(tree);
 
 
-Getting Help And Reporting Problems
+获取帮助和报告问题
 -----------------------------------
 
-The [Mini-XML project page](https://www.msweet.org/mxml) provides access to the
-current version of this software, documentation, and Github issue tracking page.
+[Mini-XML项目页面](https://www.msweet.org/mxml)提供了访问当前版本的软件、文档和Github问题跟踪页面的方式。
 
 
-Legal Stuff
+法律事务
 -----------
 
-Copyright © 2003-2024 by Michael R Sweet
+版权所有 © 2003-2024 Michael R Sweet
 
-The Mini-XML library is licensed under the Apache License Version 2.0 with an
-*optional* exception to allow linking against GPL2/LGPL2-only software.  See the
-files "LICENSE" and "NOTICE" for more information.
+Mini-XML库根据Apache许可证版本2.0进行许可，其中包含一个*可选*的例外，允许与仅限于GPL2/LGPL2的软件进行链接。有关更多信息，请参阅文件"LICENSE"和"NOTICE"。
 
-> Note: The exception listed in the NOTICE file only applies when linking
-> against GPL2/LGPL2-only software.  Some Apache License purists have objected
-> to linking Apache Licensed code against Mini-XML with these exceptions on the
-> grounds that it makes Mini-XML somehow incompatible with the Apache License.
-> For that reason, people wishing to retain their Apache License purity may
-> omit the exception from their copy of Mini-XML.
+> 注意：NOTICE文件中列出的例外仅适用于与GPL2/LGPL2软件进行链接的情况。一些Apache许可证纯粹主义者反对将带有这些例外的Apache许可证代码与Mini-XML进行链接，理由是这使得Mini-XML在某种程度上与Apache许可证不兼容。因此，希望保持Apache许可证纯粹性的人可以在他们的Mini-XML副本中省略这个例外。
 >
-> Note 2: IANAL, but I am beginning to dislike them!
+> 注意2：我不是律师，但我开始讨厌他们了！
