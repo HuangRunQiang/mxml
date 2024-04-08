@@ -1,0 +1,8 @@
+对每个函数添加doxygen注释：
+
+extern _mxml_global_t	*_mxml_global(void);
+extern const char	*_mxml_entity_string(int ch);
+extern int		_mxml_entity_value(mxml_options_t *options, const char *name);
+extern void		_mxml_error(mxml_options_t *options, const char *format, ...) MXML_FORMAT(2,3);
+extern char		*_mxml_strcopy(const char *s);
+extern void		_mxml_strfree(char *s);
