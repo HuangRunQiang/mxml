@@ -1,11 +1,12 @@
 #
-# AFL dictionary for XML
+# XML的AFL字典
 # ----------------------
 #
-# Several basic syntax elements and attributes, modeled on libxml2.
+# 基于libxml2的几个基本语法元素和属性。
 #
-# Created by Michal Zalewski <lcamtuf@google.com>
+# 由Michal Zalewski <lcamtuf@google.com>创建
 #
+
 
 attr_encoding=" encoding=\"1\""
 attr_generic=" a=\"1\""

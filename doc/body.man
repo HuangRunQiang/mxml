@@ -1,173 +1,125 @@
-.SH INCLUDE FILE
+.SH 包含文件
+```c
 #include <mxml.h>
-.SH LIBRARY
-\-lmxml
-.SH DESCRIPTION
-Mini-XML is a small XML parsing library that you can use to
-read XML and XML-like data files in your application without
-requiring large non-standard libraries.  Mini-XML only
-requires an ANSI C compatible compiler (GCC works, as do
-most vendors' ANSI C compilers) and a "make" program.
-.PP
-Mini-XML provides the following functionality:
-.IP \(bu 4
-Reading of UTF-8 and UTF-16 and writing of UTF-8 encoded XML files and strings.
-.IP \(bu 4
-Data is stored in a linked-list tree structure,
-preserving the XML data hierarchy.
-.IP \(bu 4
-Supports arbitrary element names, attributes, and attribute
-values with no preset limits, just available memory.
-.IP \(bu 4
-Supports integer, real, opaque ("CDATA"), and text data types in
-"leaf" nodes.
-.IP \(bu 4
-Functions for creating, indexing, and managing trees of data.
-.IP \(bu 4
-"Find" and "walk" functions for easily locating and navigating
-trees of data.
-.PP
-Mini-XML doesn't do validation or other types of processing
-on the data based upon schema files or other sources of
-definition information, nor does it support character
-entities other than those required by the XML
-specification.
-.SH USING MINI-XML
-Mini-XML provides a single header file which you include:
-.nf
+```
 
-    #include <mxml.h>
-.fi
-.PP
-Nodes are defined by the "mxml_node_t" structure; the "type"
-member defines the node type (element, integer, opaque,
-real, or text) which determines which value you want to look
-at in the "value" union.  New nodes can be created using the
-"mxmlNewElement()", "mxmlNewInteger()", "mxmlNewOpaque()",
-"mxmlNewReal()", and "mxmlNewText()" functions.  Only
-elements can have child nodes, and the top node must be an
-element, usually "?xml".
-.PP
-You load an XML file using the "mxmlLoadFile()" function:
-.nf
+.SH 库
+```c
+-lmxml
+```
 
-    FILE *fp;
-    mxml_node_t *tree;
+.SH 描述
+Mini-XML 是一个小型的 XML 解析库，您可以在应用程序中使用它来读取 XML 和类 XML 数据文件，而无需使用大型非标准库。Mini-XML 只需要 ANSI C 兼容的编译器（如 GCC，大多数厂商的 ANSI C 编译器也可以），以及一个 "make" 程序。
 
-    fp = fopen("filename.xml", "r");
-    tree = mxmlLoadFile(NULL, fp, MXML_NO_CALLBACK);
-    fclose(fp);
-.fi
-.PP
-Similarly, you save an XML file using the "mxmlSaveFile()"
-function:
-.nf
+Mini-XML 提供以下功能：
+- 读取 UTF-8 和 UTF-16，以及编写 UTF-8 编码的 XML 文件和字符串。
+- 数据存储在链表树结构中，保留了 XML 数据的层次结构。
+- 支持任意元素名称、属性和属性值，没有预设限制，只受可用内存限制。
+- 在 "叶子" 节点中支持整数、实数、不透明 ("CDATA") 和文本数据类型。
+- 提供创建、索引和管理数据树的函数。
+- 提供用于轻松定位和导航数据树的 "查找" 和 "遍历" 函数。
 
-    FILE *fp;
-    mxml_node_t *tree;
+Mini-XML 不对数据进行基于模式文件或其他定义信息源的验证或其他类型的处理，也不支持除 XML 规范所需的字符实体之外的字符实体。
 
-    fp = fopen("filename.xml", "w");
-    mxmlSaveFile(tree, fp, MXML_NO_CALLBACK);
-    fclose(fp);
-.fi
-.PP
-The "mxmlLoadString()", "mxmlSaveAllocString()", and
-"mxmlSaveString()" functions load XML node trees from and save
-XML node trees to strings:
-.nf
+.SH 使用 Mini-XML
+Mini-XML 提供一个头文件，您可以包含它：
+```c
+#include <mxml.h>
+```
 
-    char buffer[8192];
-    char *ptr;
-    mxml_node_t *tree;
+节点由 "mxml_node_t" 结构定义；"type" 成员定义了节点类型（元素、整数、不透明、实数或文本），这决定了您想要在 "value" 联合体中查看的值。可以使用 "mxmlNewElement()"、"mxmlNewInteger()"、"mxmlNewOpaque()"、"mxmlNewReal()" 和 "mxmlNewText()" 函数创建新节点。只有元素可以有子节点，顶级节点必须是一个元素，通常是 "?xml"。
 
-    ...
-    tree = mxmlLoadString(NULL, buffer, MXML_NO_CALLBACK);
+您可以使用 "mxmlLoadFile()" 函数加载 XML 文件：
+```c
+FILE *fp;
+mxml_node_t *tree;
 
-    ...
-    mxmlSaveString(tree, buffer, sizeof(buffer),
-                   MXML_NO_CALLBACK);
+fp = fopen("filename.xml", "r");
+tree = mxmlLoadFile(NULL, fp, MXML_NO_CALLBACK);
+fclose(fp);
+```
 
-    ...
-    ptr = mxmlSaveAllocString(tree, MXML_NO_CALLBACK);
-.fi
-.PP
-You can find a named element/node using the "mxmlFindElement()"
-function:
-.nf
+类似地，您可以使用 "mxmlSaveFile()" 函数保存 XML 文件：
+```c
+FILE *fp;
+mxml_node_t *tree;
 
-    mxml_node_t *node = mxmlFindElement(tree, tree, "name",
-                                        "attr", "value",
-                                        MXML_DESCEND);
-.fi
-.PP
-The "name", "attr", and "value" arguments can be passed as
-NULL to act as wildcards, e.g.:
-.nf
+fp = fopen("filename.xml", "w");
+mxmlSaveFile(tree, fp, MXML_NO_CALLBACK);
+fclose(fp);
+```
 
-    /* Find the first "a" element */
-    node = mxmlFindElement(tree, tree, "a", NULL, NULL,
-                           MXML_DESCEND);
+"mxmlLoadString()"、"mxmlSaveAllocString()" 和 "mxmlSaveString()" 函数从字符串加载 XML 节点树并保存 XML 节点树：
+```c
+char buffer[8192];
+char *ptr;
+mxml_node_t *tree;
 
-    /* Find the first "a" element with "href" attribute */
-    node = mxmlFindElement(tree, tree, "a", "href", NULL,
-                           MXML_DESCEND);
+...
+tree = mxmlLoadString(NULL, buffer, MXML_NO_CALLBACK);
 
-    /* Find the first "a" element with "href" to a URL */
-    node = mxmlFindElement(tree, tree, "a", "href",
-                           "http://www.easysw.com/~mike/mxml/",
-                           MXML_DESCEND);
+...
+mxmlSaveString(tree, buffer, sizeof(buffer), MXML_NO_CALLBACK);
 
-    /* Find the first element with a "src" attribute*/
-    node = mxmlFindElement(tree, tree, NULL, "src", NULL,
-                           MXML_DESCEND);
+...
+ptr = mxmlSaveAllocString(tree, MXML_NO_CALLBACK);
+```
 
-    /* Find the first element with a "src" = "foo.jpg" */
-    node = mxmlFindElement(tree, tree, NULL, "src",
-                           "foo.jpg", MXML_DESCEND);
-.fi
-.PP
-You can also iterate with the same function:
-.nf
+您可以使用 "mxmlFindElement()" 函数查找命名的元素/节点：
+```c
+mxml_node_t *node = mxmlFindElement(tree, tree, "name", "attr", "value", MXML_DESCEND);
+```
 
-    mxml_node_t *node;
+"mxmlFindElement()" 函数的 "name"、"attr" 和 "value" 参数可以传递为 NULL 作为通配符，例如：
+```c
+/* 查找第一个 "a" 元素 */
+node = mxmlFindElement(tree, tree, "a", NULL, NULL, MXML_DESCEND);
 
-    for (node = mxmlFindElement(tree, tree, "name", NULL,
-                                NULL, MXML_DESCEND);
-         node != NULL;
-         node = mxmlFindElement(node, tree, "name", NULL,
-                                NULL, MXML_DESCEND))
-    {
-      ... do something ...
-    }
-.fi
-.PP
-To find the value of a specific node in the tree, use the "mxmlFindPath()"
-function:
-.nf
+/* 查找具有 "href" 属性的第一个 "a" 元素 */
+node = mxmlFindElement(tree, tree, "a", "href", NULL, MXML_DESCEND);
 
-    mxml_node_t *value = mxmlFindPath(tree, "path/to/*/foo/bar");
-.fi
-.PP
-The "mxmlGetInteger()", "mxmlGetOpaque()", "mxmlGetReal()", and "mxmlGetText()"
-functions retrieve the value from a node:
-.nf
+/* 查找具有指向 URL 的 "href" 的第一个 "a" 元素 */
+node = mxmlFindElement(tree, tree, "a", "href", "http://www.easysw.com/~mike/mxml/", MXML_DESCEND);
 
-    mxml_node_t *node;
+/* 查找具有 "src" 属性的第一个元素 */
+node = mxmlFindElement(tree, tree, NULL, "src", NULL, MXML_DESCEND);
 
-    long intvalue = mxmlGetInteger(node);
+/* 查找具有 "src" = "foo.jpg" 的第一个元素 */
+node = mxmlFindElement(tree, tree, NULL, "src", "foo.jpg", MXML_DESCEND);
+```
 
-    const char *opaquevalue = mxmlGetOpaque(node);
+您还可以使用相同的函数进行迭代：
+```c
+mxml_node_t *node;
 
-    double realvalue = mxmlGetReal(node);
+for (node = mxmlFindElement(tree, tree, "name", NULL, NULL, MXML_DESCEND);
+     node != NULL;
+     node = mxmlFindElement(node, tree, "name", NULL, NULL, MXML_DESCEND))
+{
+  ... 进行某些操作 ...
+}
+```
 
-    bool whitespacevalue;
-    const char *textvalue = mxmlGetText(node, &whitespacevalue);
-.fi
-.PP
-Finally, once you are done with the XML data, use the
-"mxmlDelete()" function to recursively free the memory that
-is used for a particular node or the entire tree:
-.nf
+要查找树中特定节点的值，请使用 "mxmlFindPath()" 函数：
+```c
+mxml_node_t *value = mxmlFindPath(tree, "path/to/*/foo/bar");
+```
 
-    mxmlDelete(tree);
-.fi
+"mxmlGetInteger()"、"mxmlGetOpaque()"、"mxmlGetReal()" 和 "mxmlGetText()" 函数从节点中检索值：
+```c
+mxml_node_t *node;
+
+long intvalue = mxmlGetInteger(node);
+
+const char *opaquevalue = mxmlGetOpaque(node);
+
+double realvalue = mxmlGetReal(node);
+
+bool whitespacevalue;
+const char *textvalue = mxmlGetText(node, &whitespacevalue);
+```
+
+最后，当您完成对 XML 数据的操作时，请使用 "mxmlDelete()" 函数递归地释放用于特定节点或整个树的内存：
+```c
+mxmlDelete(tree);
+```

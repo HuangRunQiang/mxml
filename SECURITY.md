@@ -1,78 +1,56 @@
-Security Policy
+安全政策
 ===============
 
-This file describes how security issues are reported and handled, and what the
-expectations are for security issues reported to this project.
+本文档描述了如何报告和处理安全问题，以及对报告给该项目的安全问题的期望。
 
 
-Reporting a Security Bug
+报告安全漏洞
 ------------------------
 
-For the purposes of this project, a security bug is a software defect that
-allows a *local or remote user* to gain unauthorized access or privileges on the
-host computer or to cause the software to crash.  Such defects should be
-reported to the project security advisory page at
-<https://github.com/michaelrsweet/mxml/security/advisories>.
+对于本项目而言，安全漏洞是指允许*本地或远程用户*在主机计算机上获得未经授权的访问或特权，或导致软件崩溃的软件缺陷。应将此类缺陷报告给项目的安全咨询页面：<https://github.com/michaelrsweet/mxml/security/advisories>。
 
-Alternately, security bugs can be reported to "security AT msweet.org" using the
-PGP public key below.  Expect a response within 5 business days.  Any proposed
-embargo date should be at least 30 days and no more than 90 days in the future.
+或者，也可以使用下面的PGP公钥将安全漏洞报告发送到"security AT msweet.org"。预计在5个工作日内会收到回复。任何建议的禁令日期应该至少在未来30天且不超过90天。
 
-> *Note:* If you've found a software defect that allows a *program* to gain
-> unauthorized access or privileges on the host computer or causes the program
-> to crash, that defect should be reported as an ordinary project issue at
-> <https://github.com/michaelrsweet/mxml/issues>.
+> *注意：*如果您发现了一个允许*程序*在主机计算机上获得未经授权的访问或特权，或导致程序崩溃的软件缺陷，请将该缺陷作为普通项目问题报告给<https://github.com/michaelrsweet/mxml/issues>。
 
 
-Responsible Disclosure
+负责任的披露
 ----------------------
 
-With *responsible disclosure*, a security issue (and its fix) is disclosed only
-after a mutually-agreed period of time (the "embargo date").  The issue and fix
-are shared amongst and reviewed by the key stakeholders (Linux distributions,
-OS vendors, etc.) and the CERT/CC.  Fixes are released to the public on the
-agreed-upon date.
+在*负责任的披露*中，安全问题（及其修复）仅在相互约定的一段时间（"禁令日期"）之后披露。问题和修复方案会在关键利益相关者（Linux发行版、操作系统供应商等）和CERT/CC之间共享和审查。修复方案将在约定的日期向公众发布。
 
-> Responsible disclosure applies only to production releases.  A security
-> vulnerability that only affects unreleased code can be fixed immediately
-> without coordination.  Vendors *should not* package and release unstable
-> snapshots, beta releases, or release candidates of this software.
+> 负责任的披露仅适用于生产版本。仅影响未发布代码的安全漏洞可以立即修复，无需协调。供应商*不应*打包和发布此软件的不稳定快照、测试版或预发布版本。
 
 
-Supported Versions
+支持的版本
 ------------------
 
-All production releases of this software are subject to this security policy.  A
-production release is tagged and given a semantic version number of the form:
+本软件的所有生产版本均适用于此安全政策。生产版本的标签和语义版本号的形式如下：
 
-    MAJOR.MINOR.PATCH
+    主版本.次版本.修订版本
 
-where "MAJOR" is an integer starting at 1 and "MINOR" and "PATCH" are integers
-starting at 0.  A feature release has a "PATCH" value of 0, for example:
+其中，"主版本"是从1开始的整数，"次版本"和"修订版本"是从0开始的整数。一个功能版本的"修订版本"值为0，例如：
 
     1.0.0
     1.1.0
     2.0.0
 
-Beta releases and release candidates are *not* production releases and use
-semantic version numbers of the form:
+测试版和预发布版本不是生产版本，使用以下形式的语义版本号：
 
-    MAJOR.MINORbNUMBER
-    MAJOR.MINORrcNUMBER
+    主版本.次版本b编号
+    主版本.次版本rc编号
 
-where "MAJOR" and "MINOR" identify the new feature release version number and
-"NUMBER" identifies a beta or release candidate number starting at 1, for
-example:
+其中，"主版本"和"次版本"标识新功能版本号，"编号"标识从1开始的测试版或预发布版号，例如：
 
     1.0b1
     1.0b2
     1.0rc1
 
 
-PGP Public Key
+PGP公钥
 --------------
 
-The following PGP public key can be used for signing security messages.
+以下PGP公钥可用于签署安全消息。
 
 ```
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -104,29 +82,4 @@ gzSGNkmfVgA1ILl0mi8OBVZ4jlUg6EgVsiPlzolH92iscK7g50PdjzpQe0m3gmcL
 dpOmSL8Fti05dPfamJzIvJd28kMZ6yMnACKj9rq/VpfgYBLK8dbNUjEOQ2oq7PyR
 Ye/LE1OmAJwfZQkyQNI8yAFXoRJ8u3/bRb3SPvGGWquGBDKHv2K1XiCW65uyLe5B
 RNJWmme5Ag0EXovRGAEQAJZMFeIMt/ocLskrp89ZyBTTiavFKn9+QW7C2Mb36A73
-J2g9vRFBSRizb+t8lSzP/T1GbKS0cEmfEpQppWImTbOMV6ZgxrM0IUy1Yd7Kyc0K
-oNMZvykRYwVMzxB5hiQ88kCLfqTNCveIvu1xcB9pWkf+cuDmGCxA3I+yc3Eh/SOP
-urDsHObt7fyEmJpSxCXlMFHRCuWyGXhMNvhR186t9mANW0PyxKJ8efr+2Vhm1+pA
-Vk9JESac/lREvx9PVFmlPdqgqRkQ0TQB5+ROo9Wy77cxQr5+rvSZZff630I1YgZf
-Ph6xOV1/q6vJ3RBNA2nPSTjPeeWQ7pTn7PZGJwCjIUjhMbO+EJVKUJNOAEg033mG
-tLfbFUYdhA/dRgFuKz90loCMfsnf3e4o/TFydSHUuwBUtOWkL1BBWEbk95M/Zr00
-w5fD9knas1u5Lc4ogXzTFPnvJ6hM1RAFJEd+FYzJZIvzwrIx4Ag1DOKViVBpeLTu
-HWj+xckEgvxEBglplALzfSIJ0CLQSNL8iMFbzCnPeUoQfPkqu37KHrB9syAA06Tb
-qw1Ax0qBqKInGIgBd0w6dFLF3s04xVcPAXWyJ0w4I7h2bs+aD6YwwK6xxCtXxtN5
-Q1LQM8s3tKNXER3mZ8zfwgwjsdLVwhXhysFi6Dlkvk/Vrbn1QDfJnzq+F9LsGRGb
-ABEBAAGJAjwEGAEKACYWIQQ4SV9JdhSH3UAXSwGlmIi3PZ95AgUCXovRGAIbDAUJ
-B4YfgAAKCRClmIi3PZ95AhDZD/40fShzDS/smZZL0oXN4GgZ62FrXWBdLjontkXo
-d8hDh1wJZwqsLVbtO2Gu0CPeH9GclQ3bYsR19sGMM4FDgjMu57O/TU6GZl2Ywcjh
-ayhRTHyAq/BKZn71AM0N7LS8MdNTaLbTbzEu5oGbAmOVv5f0SUnQoGxbeF8ih5bo
-hR3ZcORujWMgnymL3+cerNyIDQAtfMAUTfpVcwem4CvquA9Wjtur8YN1t+N7I3o2
-eMTNSyNUL9Yx3NxbyJ0yrrMvASo+ZVRaPW5+ET9Iqd68ILSY04Gnar3URJssggX8
-+cuyEbP9bAG8qYqcr2aSC2dW84mL/RnZGR//1dfS0Ugk6Osj0LSF5i+mz0CbIjYQ
-PKgLlgpycuGZBC5kG3RWWfanM0HxPDx10a7vEWA1A5Q+csx4yi3CW/giC1zAdhUO
-cJ1l4Uj/oxpGeLN7BnT/2NzU/px2fpbaG+xU4HlwjzFM2cIOUIohHFhdvFZbFIIA
-mePqTBnEB3HtXYRTgMoYDXLWhlOXjyVnMR45WDfvEA3KqbAz6sNMtaOJ6rHBWnR1
-1YbpvDWUeaGSLXBoGyo3RgTrN9jON8lE/oUxFobnEdfZGD+uwIniylc5rw3+VkBU
-+QGZDfgPgxjSmKsWq1cK6rNfBacGYrdyqf90VemEsvR8r0Ump0RPzBMlAAq0Xkup
-WkiKlA==
-=0GzT
------END PGP PUBLIC KEY BLOCK-----
-```
+J2g9vRFBSRizb+t8lSzP/T1GbKS0cEmfEpQppWImTbOMV

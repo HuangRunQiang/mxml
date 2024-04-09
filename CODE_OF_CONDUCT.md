@@ -1,13 +1,11 @@
-Code of Conduct
+行为准则
 ===============
 
-My goal is to provide quality open source software that everyone can use.
-While I may not be able to address every request or accept every contribution
-to this project, I will do my best to develop and maintain it for the common
-good.  As part of the open source community, I expect everyone to:
+我的目标是提供优质的开源软件，供所有人使用。
+虽然我可能无法满足每个请求或接受每个贡献，但我将尽力为了共同利益进行开发和维护。作为开源社区的一部分，我希望每个人都能：
 
-- Be friendly and patient.
-- Be respectful, even if we disagree.
-- Be honest.
-- Be accepting of all people.
-- Fully explain your concerns, issues, or ideas.
+- 友善和耐心。
+- 尊重他人，即使我们有不同意见。
+- 诚实。
+- 接纳所有的人。
+- 充分解释你的关注、问题或想法。

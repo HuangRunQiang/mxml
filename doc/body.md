@@ -1,114 +1,83 @@
----
-title: Mini-XML 4.0 Programming Manual
-author: Michael R Sweet
-copyright: Copyright © 2003-2024, All Rights Reserved.
-version: 4.0
+标题：Mini-XML 4.0 编程手册
+作者：Michael R Sweet
+版权：版权所有 © 2003-2024，保留所有权利。
+版本：4.0
 ...
 
 
-Introduction
+介绍
 ============
 
-Mini-XML is a small XML parsing library that you can use to read XML data files
-or strings in your application without requiring large non-standard libraries.
-Mini-XML provides the following functionality:
+Mini-XML 是一个小型的 XML 解析库，您可以在应用程序中使用它来读取 XML 数据文件或字符串，而无需使用大型的非标准库。Mini-XML 提供以下功能：
 
-- Reading of UTF-8 and UTF-16 and writing of UTF-8 encoded XML files and
-  strings.
-- Data is stored in a linked-list tree structure, preserving the XML data
-  hierarchy.
-- SAX (streamed) reading of XML files and strings to minimize memory usage.
-- Supports arbitrary element names, attributes, and attribute values with no
-  preset limits, just available memory.
-- Supports integer, real, opaque ("CDATA"), text, and custom data types in
-  "leaf" nodes.
-- Functions for creating and managing trees of data.
-- "Find" and "walk" functions for easily locating and navigating trees of
-  data.
-- Support for custom string memory management functions to implement string
-  pools and other schemes for reducing memory usage.
+- 支持读取 UTF-8 和 UTF-16 编码的 XML 文件和字符串，以及写入 UTF-8 编码的 XML 文件和字符串。
+- 数据以链表树结构存储，保留了 XML 数据的层次结构。
+- 通过 SAX（流式）读取 XML 文件和字符串，以最小化内存使用。
+- 支持任意元素名称、属性和属性值，没有预设限制，只受可用内存限制。
+- 在“叶子”节点中支持整数、实数、不透明（"CDATA"）、文本和自定义数据类型。
+- 提供创建和管理数据树的函数。
+- 提供用于查找和遍历数据树的“查找”和“遍历”函数。
+- 支持自定义字符串内存管理函数，以实现字符串池和其他减少内存使用的方案。
 
-Mini-XML doesn't do validation or other types of processing on the data based
-upon schema files or other sources of definition information.
+Mini-XML 不对基于模式文件或其他定义信息源的数据进行验证或其他类型的处理。
 
 
-History
+历史
 -------
 
-Mini-XML was initially developed for the [Gutenprint](http://gutenprint.sf.net/)
-project to replace the rather large and unwieldy `libxml2` library with
-something substantially smaller and easier-to-use.  It all began one morning in
-June of 2003 when Robert posted the following sentence to the developer's list:
+Mini-XML 最初是为 [Gutenprint](http://gutenprint.sf.net/) 项目开发的，旨在用较小且易于使用的方式取代庞大而笨重的 `libxml2` 库。一切始于 2003 年 6 月的一个早晨，Robert 在开发者列表中发布了以下句子：
 
-> It's bad enough that we require libxml2, but rolling our own XML parser is a
-> bit more than we can handle.
+> 我们需要 libxml2 已经够糟糕了，但自己编写 XML 解析器有点超出我们的能力范围。
 
-I then replied with:
+我随后回答道：
 
-> Given the limited scope of what you use in XML, it should be trivial to code a
-> mini-XML API in a few hundred lines of code.
+> 考虑到你在 XML 中使用的有限范围，用几百行代码编写一个迷你 XML API 应该是微不足道的。
 
-I took my own challenge and coded furiously for two days to produce the initial
-public release of Mini-XML, total lines of code: 696.  Robert promptly
-integrated Mini-XML into Gutenprint and removed libxml2.
+我接受了自己的挑战，连续两天疯狂编码，最终发布了 Mini-XML 的首个公开版本，总代码行数为 696 行。Robert 随即将 Mini-XML 集成到 Gutenprint 中，并移除了 libxml2。
 
-Thanks to lots of feedback and support from various developers, Mini-XML has
-evolved since then to provide a more complete XML implementation and now stands
-at a whopping 3,491 lines of code, compared to 175,808 lines of code for libxml2
-version 2.11.7.
+得益于各位开发者的大量反馈和支持，Mini-XML 自那时以来不断发展，提供了更完整的 XML 实现，目前的代码行数达到了令人惊叹的 3,491 行，而 libxml2 版本 2.11.7 的代码行数为 175,808 行。
 
 
-Resources
+资源
 ---------
 
-The Mini-XML home page can be found at <https://www.msweet.org/mxml>.  From
-there you can download the current version of Mini-XML, access the issue
-tracker, and find other resources.
+您可以在 [Mini-XML 官方网站](https://www.msweet.org/mxml) 上找到 Mini-XML 的主页。在那里，您可以下载当前版本的 Mini-XML，访问问题跟踪器，并找到其他资源。
 
-Mini-XML v4 has a slightly different API than prior releases. See the
-[Migrating from Mini-XML v3.x](@) chapter for details.
+Mini-XML v4 的 API 与之前的版本略有不同。有关详细信息，请参阅 [从 Mini-XML v3.x 迁移](@) 章节。
 
 
-Legal Stuff
+法律事项
 -----------
 
-The Mini-XML library is copyright © 2003-2024 by Michael R Sweet and is provided
-under the Apache License Version 2.0 with an (optional) exception to allow
-linking against GPL2/LGPL2-only software.  See the files "LICENSE" and "NOTICE"
-for more information.
+Mini-XML 库的版权归 Michael R Sweet 所有，版权所有 © 2003-2024，采用 Apache 许可证版本 2.0 提供，附加（可选）例外条款以允许与仅限于 GPL2/LGPL2 的软件进行链接。有关更多信息，请参阅 "LICENSE" 和 "NOTICE" 文件。
 
 
-Using Mini-XML
+使用 Mini-XML
 ==============
 
-Mini-XML provides a single header file which you include:
+Mini-XML 提供一个单独的头文件，您可以包含它：
 
 ```c
 #include <mxml.h>
 ```
 
-The Mini-XML library is included with your program using the `-lmxml4` option:
+Mini-XML 库可以使用 `-lmxml4` 选项将其包含到您的程序中：
 
     gcc -o myprogram myprogram.c -lmxml4
 
-If you have the `pkg-config` software installed, you can use it to determine the
-proper compiler and linker options for your installation:
+如果您安装了 `pkg-config` 软件，可以使用它来确定适合您安装的正确编译器和链接器选项：
 
     gcc `pkg-config --cflags mxml4` -o myprogram myprogram.c `pkg-config --libs mxml4`
 
-> Note: The library name "mxml4" is a configure-time option. If you use the
-> `--disable-libmxml4-prefix` configure option the library is named "mxml".
+> 注意：库名 "mxml4" 是一个配置时的选项。如果您使用了 `--disable-libmxml4-prefix` 配置选项，则库名为 "mxml"。
 
 
-API Basics
+API 基础知识
 ----------
 
-Every piece of information in an XML file is stored in memory in "nodes".  Nodes
-are represented by `mxml_node_t` pointers.  Each node has an associated type,
-value(s), a parent node, sibling nodes (previous and next), potentially first
-and last child nodes, and an optional user data pointer.
+XML 文件中的每个信息都以 "节点" 的形式存储在内存中。节点由 `mxml_node_t` 指针表示。每个节点都有一个关联的类型、值、父节点、兄弟节点（前一个和后一个）、可能的第一个和最后一个子节点，以及一个可选的用户数据指针。
 
-For example, if you have an XML file like the following:
+例如，如果您有一个如下所示的 XML 文件：
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -126,7 +95,7 @@ For example, if you have an XML file like the following:
 </data>
 ```
 
-the node tree for the file would look like the following in memory:
+文件的节点树在内存中的表示如下：
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -142,42 +111,30 @@ the node tree for the file would look like the following in memory:
                              val4     val5     val6
 ```
 
-where "-" is a pointer to the sibling node and "|" is a pointer to the first
-child or parent node.
+其中 "-" 是指向兄弟节点的指针，"|" 是指向第一个子节点或父节点的指针。
 
-The [mxmlGetType](@@) function gets the type of a node which is represented as a
-`mxml_type_t` enumeration value:
+[mxmlGetType](@@) 函数获取节点的类型，表示为 `mxml_type_t` 枚举值：
 
-- `MXML_TYPE_CDATA`: CDATA such as `<![CDATA[...]]>`,
-- `MXML_TYPE_COMMENT`: A comment such as `<!-- my comment -->`,
-- `MXML_TYPE_CUSTOM`: A custom value defined by your application,
-- `MXML_TYPE_DECLARATION`: A declaration such as `<!DOCTYPE html>`,
-- `MXML_TYPE_DIRECTIVE`: A processing instruction such as
-  `<?xml version="1.0" encoding="utf-8"?>`,
-- `MXML_TYPE_ELEMENT`: An XML element with optional attributes such as
-  `<element name="value">`,
-- `MXML_TYPE_INTEGER`: A whitespace-delimited integer value such as `42`,
-- `MXML_TYPE_OPAQUE`: An opaque string value that preserves all whitespace
-  such as `All work and no play makes Johnny a dull boy.`,
-- `MXML_TYPE_REAL`: A whitespace-delimited floating point value such as
-  `123.4`, or
-- `MXML_TYPE_TEXT`: A whitespace-delimited text (fragment) value such as
-  `Word`.
+- `MXML_TYPE_CDATA`：CDATA，例如 `<![CDATA[...]]>`，
+- `MXML_TYPE_COMMENT`：注释，例如 `<!-- my comment -->`，
+- `MXML_TYPE_CUSTOM`：应用程序定义的自定义值，
+- `MXML_TYPE_DECLARATION`：声明，例如 `<!DOCTYPE html>`，
+- `MXML_TYPE_DIRECTIVE`：处理指令，例如 `<?xml version="1.0" encoding="utf-8"?>`，
+- `MXML_TYPE_ELEMENT`：具有可选属性的 XML 元素，例如 `<element name="value">`，
+- `MXML_TYPE_INTEGER`：以空格分隔的整数值，例如 `42`，
+- `MXML_TYPE_OPAQUE`：不透明的字符串值，保留所有空格，例如 `All work and no play makes Johnny a dull boy.`，
+- `MXML_TYPE_REAL`：以空格分隔的浮点数值，例如 `123.4`，或
+- `MXML_TYPE_TEXT`：以空格分隔的文本（片段）值，例如 `Word`。
 
-The parent, sibling, and child nodes are accessed using the [mxmlGetParent](@@),
-[mxmlGetNextSibling](@@), [mxmlGetPreviousSibling](@@), [mxmlGetFirstChild](@@),
-and [mxmlGetLastChild](@@) functions.
+可以使用 [mxmlGetParent](@@)、[mxmlGetNextSibling](@@)、[mxmlGetPreviousSibling](@@)、[mxmlGetFirstChild](@@) 和 [mxmlGetLastChild](@@) 函数来访问父节点、兄弟节点和子节点。
 
-The value(s) of a node are accessed using the [mxmlGetCDATA](@@),
-[mxmlGetComment](@@), [mxmlGetDeclaration](@@), [mxmlGetDirective](@@),
-[mxmlGetElement](@@), [mxmlElementGetAttr](@@), [mxmlGetInteger](@@),
-[mxmlGetOpaque](@@), [mxmlGetReal](@@), and [mxmlGetText](@@) functions.
+可以使用 [mxmlGetCDATA](@@)、[mxmlGetComment](@@)、[mxmlGetDeclaration](@@)、[mxmlGetDirective](@@)、[mxmlGetElement](@@)、[mxmlElementGetAttr](@@)、[mxmlGetInteger](@@)、[mxmlGetOpaque](@@)、[mxmlGetReal](@@) 和 [mxmlGetText](@@) 函数来访问节点的值。
 
 
-Loading an XML File
+加载 XML 文件
 -------------------
 
-You load an XML file using the [mxmlLoadFilename](@@) function:
+您可以使用 [mxmlLoadFilename](@@) 函数加载 XML 文件：
 
 ```c
 mxml_node_t *
@@ -185,8 +142,7 @@ mxmlLoadFilename(mxml_node_t *top, mxml_options_t *options,
                  const char *filename);
 ```
 
-Mini-XML also provides functions to load from a `FILE` pointer, a file
-descriptor, a string, or using a callback:
+Mini-XML 还提供了从 `FILE` 指针、文件描述符、字符串或使用回调加载的函数：
 
 ```c
 mxml_node_t *
@@ -206,10 +162,7 @@ mxmlLoadString(mxml_node_t *top, mxml_options_t *options,
                const char *s);
 ```
 
-Each accepts a pointer to the top-most ("root") node (usually `NULL`) you want
-to add the XML data to, any load options, and the content to be loaded.  For
-example, the following code will load an XML file called "example.xml" using the
-default load options:
+每个函数接受指向顶级（"根"）节点的指针（通常为 `NULL`），任何加载选项以及要加载的内容。例如，以下代码将使用默认加载选项加载名为 "example.xml" 的 XML 文件：
 
 ```c
 mxml_node_t *xml;
@@ -219,39 +172,27 @@ xml = mxmlLoadFilename(/*top*/NULL, /*options*/NULL,
 ```
 
 
-### Load Options
+### 加载选项
 
-Load options are specified using a `mxml_options_t` pointer, which you create
-using the [mxmlOptionsNew](@@) function:
+加载选项使用 `mxml_options_t` 指针指定，可以使用 [mxmlOptionsNew](@@) 函数创建：
 
 ```c
 mxml_options_t *options = mxmlOptionsNew();
 ```
 
-The default load options will treat any values in your XML as whitespace-
-delimited text (`MXML_TYPE_TEXT`).  You can specify a different type of values
-using the [mxmlOptionsSetTypeValue](@@) function.  For example, the following
-will specify that values are opaque text strings, including whitespace
-(`MXML_TYPE_OPAQUE`):
+默认加载选项将将 XML 中的任何值视为以空格分隔的文本（`MXML_TYPE_TEXT`）。您可以使用 [mxmlOptionsSetTypeValue](@@) 函数指定不同类型的值。例如，以下代码将指定值为包含空格的不透明文本字符串（`MXML_TYPE_OPAQUE`）：
 
 ```c
 mxmlOptionsSetTypeValue(options, MXML_TYPE_OPAQUE);
 ```
 
-For more complex XML documents, you can specify a callback that returns the type
-of value for a given element node using the [mxmlOptionsSetTypeCallback](@@)
-function.  For example, to specify a callback function called `my_type_cb` that
-has no callback data:
+对于更复杂的 XML 文档，可以指定一个回调函数，该函数根据给定元素节点返回值的类型，使用 [mxmlOptionsSetTypeCallback](@@) 函数。例如，要指定一个名为 `my_type_cb` 的回调函数，没有回调数据：
 
 ```c
 mxmlOptionsSetTypeValue(options, my_type_cb, /*cbdata*/NULL);
 ```
 
-The `my_type_cb` function accepts the callback data pointer (`NULL` in this
-case) and the `mxml_node_t` pointer for the current element and returns a
-`mxml_type_t` enumeration value specifying the value type for child nodes.  For
-example, the following function looks at the "type" attribute and the element
-name to determine the value types of the node's children:
+`my_type_cb` 函数接受回调数据指针（在本例中为 `NULL`）和当前元素的 `mxml_node_t` 指针，并返回一个 `mxml_type_t` 枚举值，指定子节点的值类型。例如，以下函数根据 "type" 属性和元素名称确定节点的子节点的值类型：
 
 ```c
 mxml_type_t
@@ -260,8 +201,7 @@ my_load_cb(void *cbdata, mxml_node_t *node)
   const char *type;
 
  /*
-  * You can lookup attributes and/or use the element name,
-  * hierarchy, etc...
+  * 您可以查找属性和/或使用元素名称、层次结构等...
   */
 
   type = mxmlElementGetAttr(node, "type");
@@ -282,14 +222,10 @@ my_load_cb(void *cbdata, mxml_node_t *node)
 ```
 
 
-Finding Nodes
+查找节点
 -------------
 
-The [mxmlFindPath](@@) function finds the (first) value node under a specific
-element using a path.  The path string can contain the "*" wildcard to match a
-single element node in the hierarchy.  For example, the following code will find
-the first "node" element under the "group" element, first using an explicit path
-and then using a wildcard:
+[mxmlFindPath](@@) 函数使用路径查找特定元素下的（第一个）值节点。路径字符串可以包含 "*" 通配符，以匹配层次结构中的单个元素节点。例如，以下代码将查找 "group" 元素下的第一个 "node" 元素，首先使用显式路径，然后使用通配符：
 
 ```c
 mxml_node_t *directnode = mxmlFindPath(xml, "data/group/node");
@@ -297,8 +233,7 @@ mxml_node_t *directnode = mxmlFindPath(xml, "data/group/node");
 mxml_node_t *wildnode = mxmlFindPath(xml, "data/*/node");
 ```
 
-The [mxmlFindElement](@@) function can be used to find a named element,
-optionally matching an attribute and value:
+[mxmlFindElement](@@) 函数用于查找具有指定名称的元素，可选择匹配属性和值：
 
 ```c
 mxml_node_t *
@@ -307,35 +242,34 @@ mxmlFindElement(mxml_node_t *node, mxml_node_t *top,
                 const char *value, int descend);
 ```
 
-The `element`, `attr`, and `value` arguments can be passed as `NULL` to act as
-wildcards, e.g.:
+可以将 `element`、`attr` 和 `value` 参数传递为 `NULL`，以充当通配符，例如：
 
 ```c
 mxml_node_t *node;
 
-/* Find the first "a" element */
+/* 查找第一个 "a" 元素 */
 node = mxmlFindElement(tree, tree, "a", NULL, NULL,
                        MXML_DESCEND_ALL);
 
-/* Find the first "a" element with "href" attribute */
+/* 查找具有 "href" 属性的第一个 "a" 元素 */
 node = mxmlFindElement(tree, tree, "a", "href", NULL,
                        MXML_DESCEND_ALL);
 
-/* Find the first "a" element with "href" to a URL */
+/* 查找具有 "href" 属性且值为 URL 的第一个 "a" 元素 */
 node = mxmlFindElement(tree, tree, "a", "href",
                        "http://msweet.org/",
                        MXML_DESCEND_ALL);
 
-/* Find the first element with a "src" attribute*/
+/* 查找具有 "src" 属性的第一个元素 */
 node = mxmlFindElement(tree, tree, NULL, "src", NULL,
                        MXML_DESCEND_ALL);
 
-/* Find the first element with a "src" = "foo.jpg" */
+/* 查找具有 "src" 值为 "foo.jpg" 的第一个元素 */
 node = mxmlFindElement(tree, tree, NULL, "src", "foo.jpg",
                        MXML_DESCEND_ALL);
 ```
 
-You can also iterate with the same function:
+还可以使用相同的函数进行迭代：
 
 ```c
 mxml_node_t *node;
@@ -346,38 +280,23 @@ for (node = mxmlFindElement(tree, tree, "element", NULL,
      node = mxmlFindElement(node, tree, "element", NULL,
                             NULL, MXML_DESCEND_ALL))
 {
-  ... do something ...
+  ... 做一些操作 ...
 }
 ```
 
-The `descend` argument \(`MXML_DESCEND_ALL` in the previous examples) can be one
-of three constants:
+`descend` 参数（在前面的示例中为 `MXML_DESCEND_ALL`）可以是以下三个常量之一：
 
-- `MXML_DESCEND_NONE`: ignore child nodes in the element hierarchy, instead
-  using siblings (same level) or parent nodes (above) until the top (root) node
-  is reached.
-
-- `MXML_DESCEND_FIRST`: start the search with the first child of the node, and
-  then search siblings.  You'll normally use this when iterating through direct
-  children of a parent node, e.g. all of the `<node>` and `<group>` elements
-  under the `<?xml ...?>` parent node in the previous example.
-
-- `MXML_DESCEND_ALL`: search child nodes first, then sibling nodes, and then
-  parent nodes.
+- `MXML_DESCEND_NONE`：忽略元素层次结构中的子节点，而使用同级节点（同一级别）或父节点（上一级）直到达到顶级（根）节点。
+- `MXML_DESCEND_FIRST`：从节点的第一个子节点开始搜索，然后搜索兄弟节点。通常在迭代父节点的直接子节点时使用此选项，例如，在前面示例中的 `<?xml ...?>` 父节点下的所有 `<node>` 和 `<group>` 元素。
+- `MXML_DESCEND_ALL`：首先搜索子节点，然后搜索兄弟节点，然后搜索父节点。
 
 
-Getting the Value(s) from Nodes
+从节点获取值
 -------------------------------
 
-Once you have the node you can use one of the mxmlGetXxx functions to retrieve
-its value(s).
+一旦获得节点，可以使用 mxmlGetXxx 函数之一检索其值。
 
-Element \(`MXML_TYPE_ELEMENT`) nodes have an associated name and zero or more
-named attributes with (string) values.  The [mxmlGetElement](@@) function
-retrieves the element name while the [mxmlElementGetAttr](@@) function retrieves
-the value string for a named attribute.  For example, the following code looks
-for HTML heading elements and, when found, displays the "id" attribute for the
-heading:
+元素（`MXML_TYPE_ELEMENT`）节点具有关联的名称和零个或多个具有（字符串）值的命名属性。[mxmlGetElement](@@) 函数检索元素名称，而 [mxmlElementGetAttr](@@) 函数检索命名属性的值字符串。例如，以下代码查找 HTML 标题元素，并在找到时显示标题的 "id" 属性：
 
 ```c
 const char *elemname = mxmlGetElement(node);
@@ -389,9 +308,7 @@ if ((*elemname == 'h' || *elemname == 'H') &&
   printf("%s: %s\n", elemname, id_value);
 ```
 
-The [mxmlElementGetAttrByIndex](@@) and [mxmlElementGetAttrCount](@@) functions
-allow you to iterate all attributes of an element.  For example, the following
-code prints the element name and each of its attributes:
+[mxmlElementGetAttrByIndex](@@) 和 [mxmlElementGetAttrCount](@@) 函数允许您迭代元素的所有属性。例如，以下代码打印元素名称及其每个属性：
 
 ```c
 const char *elemname = mxmlGetElement(node);
@@ -408,64 +325,43 @@ for (i = 0, count = mxmlElementGetAttrCount(node); i < count; i ++)
 }
 ```
 
-CDATA \(`MXML_TYPE_CDATA`) nodes have an associated string value consisting of
-the text between the `<![CDATA[` and `]]>` delimiters.  The [mxmlGetCDATA](@@)
-function retrieves the CDATA string pointer for a node.  For example, the
-following code gets the CDATA string value:
+CDATA（`MXML_TYPE_CDATA`）节点具有关联的字符串值，该值由 `<![CDATA[` 和 `]]>` 之间的文本组成。[mxmlGetCDATA](@@) 函数检索节点的 CDATA 字符串指针。例如，以下代码获取 CDATA 字符串值：
 
 ```c
 const char *cdatavalue = mxmlGetCDATA(node);
 ```
 
-Comment \(`MXML_TYPE_COMMENT`) nodes have an associated string value consisting
-of the text between the `<!--` and `-->` delimiters.  The [mxmlGetComment](@@)
-function retrieves the comment string pointer for a node.  For example, the
-following code gets the comment string value:
+注释（`MXML_TYPE_COMMENT`）节点具有关联的字符串值，该值由 `<!--` 和 `-->` 之间的文本组成。[mxmlGetComment](@@) 函数检索节点的注释字符串指针。例如，以下代码获取注释字符串值：
 
 ```c
 const char *commentvalue = mxmlGetComment(node);
 ```
 
-Processing instruction \(`MXML_TYPE_DIRECTIVE`) nodes have an associated string
-value consisting of the text between the `<?` and `?>` delimiters.  The
-[mxmlGetDirective](@@) function retrieves the processing instruction string
-for a node.  For example, the following code gets the processing instruction
-string value:
+处理指令（`MXML_TYPE_DIRECTIVE`）节点具有关联的字符串值，该值由 `<?` 和 `?>` 之间的文本组成。[mxmlGetDirective](@@) 函数检索节点的处理指令字符串。例如，以下代码获取处理指令字符串值：
 
 ```c
 const char *instrvalue = mxmlGetDirective(node);
 ```
 
-Integer \(`MXML_TYPE_INTEGER`) nodes have an associated `long` value.  The
-[mxmlGetInteger](@@) function retrieves the integer value for a node.  For
-example, the following code gets the integer value:
+整数（`MXML_TYPE_INTEGER`）节点具有关联的 `long` 值。[mxmlGetInteger](@@) 函数检索节点的整数值。例如，以下代码获取整数值：
 
 ```c
 long intvalue = mxmlGetInteger(node);
 ```
 
-Opaque string \(`MXML_TYPE_OPAQUE`) nodes have an associated string value
-consisting of the text between elements.  The [mxmlGetOpaque](@@) function
-retrieves the opaque string pointer for a node.  For example, the following
-code gets the opaque string value:
+不透明字符串（`MXML_TYPE_OPAQUE`）节点具有关联的字符串值，该值由元素之间的文本组成。[mxmlGetOpaque](@@) 函数检索节点的不透明字符串指针。例如，以下代码获取不透明字符串值：
 
 ```c
 const char *opaquevalue = mxmlGetOpaque(node);
 ```
 
-Real number \(`MXML_TYPE_REAL`) nodes have an associated `double` value.  The
-[mxmlGetReal](@@) function retrieves the real number for a node.  For example,
-the following code gets the real value:
+实数（`MXML_TYPE_REAL`）节点具有关联的 `double` 值。[mxmlGetReal](@@) 函数检索节点的实数值。例如，以下代码获取实数值：
 
 ```c
 double realvalue = mxmlGetReal(node);
 ```
 
-Whitespace-delimited text string \(`MXML_TYPE_TEXT`) nodes have an associated
-whitespace indicator and string value extracted from the text between elements.
-The [mxmlGetText](@@) function retrieves the text string pointer and whitespace
-boolean value for a node.  For example, the following code gets the text and
-whitespace indicator:
+以空格分隔的文本字符串（`MXML_TYPE_TEXT`）节点具有与之关联的空格指示符和从元素之间的文本中提取的字符串值。[mxmlGetText](@@) 函数检索文本字符串指针和空格布尔值。例如，以下代码获取文本和空格指示符：
 
 ```c
 const char *textvalue;
@@ -475,10 +371,10 @@ textvalue = mxmlGetText(node, &whitespace);
 ```
 
 
-Saving an XML File
+保存 XML 文件
 ------------------
 
-You save an XML file using the [mxmlSaveFilename](@@) function:
+您可以使用 [mxmlSaveFilename](@@) 函数保存 XML 文件：
 
 ```c
 bool
@@ -486,8 +382,7 @@ mxmlSaveFilename(mxml_node_t *node, mxml_options_t *options,
                  const char *filename);
 ```
 
-Mini-XML also provides functions to save to a `FILE` pointer, a file descriptor,
-a string, or using a callback:
+Mini-XML 还提供了将 XML 保存到 `FILE` 指针、文件描述符、字符串或使用回调的函数：
 
 ```c
 char *
@@ -510,43 +405,30 @@ mxmlSaveString(mxml_node_t *node, mxml_options_t *options,
                char *buffer, size_t bufsize);
 ```
 
-Each accepts a pointer to the top-most ("root") node, any save options, and (as
-needed) the destination.  For example, the following code saves an XML file to
-the file "example.xml" with the default options:
+每个函数接受指向最顶层（"根"）节点的指针，任何保存选项以及（根据需要）目标。例如，以下代码使用默认选项将 XML 文件保存到名为 "example.xml" 的文件中：
 
 ```c
 mxmlSaveFile(xml, /*options*/NULL, "example.xml");
 ```
 
 
-### Save Options
+### 保存选项
 
-Save options are specified using a `mxml_options_t` pointer, which you create
-using the [mxmlOptionsNew](@@) function:
+保存选项使用 `mxml_options_t` 指针指定，可以使用 [mxmlOptionsNew](@@) 函数创建：
 
 ```c
 mxml_options_t *options = mxmlOptionsNew();
 ```
 
-The default save options will wrap output lines at column 72 but not add any
-additional whitespace otherwise.  You can change the wrap column using the
-[mxmlOptionsSetWrapMargin](@@) function.  For example, the following will set
-the wrap column to 0 which disables wrapping:
+默认保存选项会在第 72 列处换行，但不会添加其他空格。您可以使用 [mxmlOptionsSetWrapMargin](@@) 函数更改换行列。例如，以下代码将换行列设置为 0，禁用换行：
 
 ```c
 mxmlOptionsSetWrapMargin(options, 0);
 ```
 
-To add additional whitespace to the output, set a whitespace callback using the
-[mxmlOptionsSetWhitespaceCallback](@@) function.  A whitespace callback accepts
-a callback data pointer, the current node, and a whitespace position value of
-`MXML_WS_BEFORE_OPEN`, `MXML_WS_AFTER_OPEN`, `MXML_WS_BEFORE_CLOSE`, or
-`MXML_WS_AFTER_CLOSE`.  The callback should return `NULL` if no whitespace
-is to be inserted or a string of spaces, tabs, carriage returns, and newlines to
-insert otherwise.
+要在输出中添加其他空格，请使用 [mxmlOptionsSetWhitespaceCallback](@@) 函数设置空格回调。空格回调接受回调数据指针、当前节点以及空格位置值 `MXML_WS_BEFORE_OPEN`、`MXML_WS_AFTER_OPEN`、`MXML_WS_BEFORE_CLOSE` 或 `MXML_WS_AFTER_CLOSE`。如果不需要插入空格，则回调应返回 `NULL`；否则，返回要插入的空格、制表符、回车和换行符的字符串。
 
-The following whitespace callback can be used to add whitespace to XHTML output
-to make it more readable in a standard text editor:
+以下空格回调可用于在 XHTML 输出中添加空格，以使其在标准文本编辑器中更易读：
 
 ```c
 const char *
@@ -555,8 +437,7 @@ whitespace_cb(void *cbdata, mxml_node_t *node, mxml_ws_t where)
   const char *element;
 
  /*
-  * We can conditionally break to a new line before or after
-  * any element.  These are just common HTML elements...
+  * 我们可以有条件地在任何元素之前或之后断行。这些只是常见的 HTML 元素...
   */
 
   element = mxmlGetElement(node);
@@ -574,7 +455,7 @@ whitespace_cb(void *cbdata, mxml_node_t *node, mxml_ws_t where)
       !strcmp(element, "h6"))
   {
    /*
-    * Newlines before open and after close...
+    * 在打开之前和关闭之后换行...
     */
 
     if (where == MXML_WS_BEFORE_OPEN ||
@@ -586,7 +467,7 @@ whitespace_cb(void *cbdata, mxml_node_t *node, mxml_ws_t where)
            !strcmp(element, "ul"))
   {
    /*
-    * Put a newline before and after list elements...
+    * 在列表元素之前和之后放置换行符...
     */
 
     return ("\n");
@@ -596,8 +477,7 @@ whitespace_cb(void *cbdata, mxml_node_t *node, mxml_ws_t where)
            !strcmp(element, "li"))
   {
    /*
-    * Put a tab before <li>'s, <dd>'s, and <dt>'s, and a
-    * newline after them...
+    * 在 <li>、<dd> 和 <dt> 前面放置制表符，并在后面放置换行符...
     */
 
     if (where == MXML_WS_BEFORE_OPEN)
@@ -607,38 +487,34 @@ whitespace_cb(void *cbdata, mxml_node_t *node, mxml_ws_t where)
   }
 
  /*
-  * Otherwise return NULL for no added whitespace...
+  * 否则返回 NULL，不添加额外的空格...
   */
 
   return (NULL);
 }
 ```
 
-The following code will set the whitespace callback for the save options:
+以下代码将为保存选项设置空格回调：
 
 ```c
 mxmlOptionsSetWhitespaceCallback(options, whitespace_cb, /*cbdata*/NULL);
 ```
 
 
-Freeing Memory
+释放内存
 --------------
 
-Once you are done with the XML data, use the [mxmlDelete](@@) function to
-free the memory that is used for a particular node and its children.  For
-example, the following code frees the XML data loaded by the previous examples:
+一旦完成对 XML 数据的使用，使用 [mxmlDelete](@@) 函数释放用于特定节点及其子节点的内存。例如，以下代码释放由前面示例加载的 XML 数据：
 
 ```c
 mxmlDelete(xml);
 ```
 
 
-Creating New XML Documents
+创建新的 XML 文档
 ==========================
 
-You can create new and update existing XML documents in memory using the various
-mxmlNewXxx functions. The following code will create the XML document described
-in the [Using Mini-XML](@) chapter:
+您可以使用各种 mxmlNewXxx 函数在内存中创建新的和更新现有的 XML 文档。以下代码将创建 [使用 Mini-XML](@) 章节中描述的 XML 文档：
 
 ```c
 mxml_node_t *xml;    /* <?xml version="1.0" charset="utf-8"?> */
@@ -672,43 +548,32 @@ data = mxmlNewElement(xml, "data");
   mxmlNewText(node, false, "val8");
 ```
 
-We start by creating the processing instruction node common to all XML files
-using the [mxmlNewXML](@@) function:
+我们首先使用 [mxmlNewXML](@@) 函数创建所有 XML 文件共有的处理指令节点：
 
 ```c
 xml = mxmlNewXML("1.0");
 ```
 
-We then create the `<data>` node used for this document using the
-[mxmlNewElement](@@) function.  The first argument specifies the parent node
-\(`xml`) while the second specifies the element name \(`data`):
+然后，我们使用 [mxmlNewElement](@@) 函数创建用于此文档的 `<data>` 节点。第一个参数指定父节点（`xml`），第二个参数指定元素名称（`data`）：
 
 ```c
 data = mxmlNewElement(xml, "data");
 ```
 
-Each `<node>...</node>` in the file is created using the [mxmlNewElement](@@)
-and [mxmlNewText](@@) functions.  The first argument of [mxmlNewText](@@)
-specifies the parent node \(`node`).  The second argument specifies whether
-whitespace appears before the text - `false` in this case.  The last argument
-specifies the actual text to add:
+每个文件中的 `<node>...</node>` 都是使用 [mxmlNewElement](@@) 和 [mxmlNewText](@@) 函数创建的。[mxmlNewText](@@) 函数的第一个参数指定父节点（`node`），第二个参数指定文本之前是否有空格（在本例中为 `false`），最后一个参数指定要添加的实际文本：
 
 ```c
 node = mxmlNewElement(data, "node");
 mxmlNewText(node, false, "val1");
 ```
 
-The resulting in-memory XML document can then be saved or processed just like
-one loaded from disk or a string.
+然后，可以保存或处理生成的内存中的 XML 文档，就像从磁盘或字符串加载的文档一样。
 
 
-Element Nodes
+元素节点
 -------------
 
-Element \(`MXML_TYPE_ELEMENT`) nodes are created using the [mxmlNewElement](@@)
-function.  Element attributes are set using the [mxmlElementSetAttr](@@) and
-[mxmlElementSetAttrf](@@) functions and cleared using the
-[mxmlElementClearAttr](@@) function:
+使用 [mxmlNewElement](@@) 函数创建元素（`MXML_TYPE_ELEMENT`）节点。使用 [mxmlElementSetAttr](@@) 和 [mxmlElementSetAttrf](@@) 函数设置元素属性，并使用 [mxmlElementClearAttr](@@) 函数清除属性：
 
 ```c
 mxml_node_t *
@@ -727,12 +592,10 @@ mxmlElementSetAttrf(mxml_node_t *node, const char *name,
 ```
 
 
-CDATA Nodes
+CDATA 节点
 -----------
 
-CDATA \(`MXML_TYPE_CDATA`) nodes are created using the [mxmlNewCDATA](@@)
-and [mxmlNewCDATAf](@@) functions and set using the [mxmlSetCDATA](@@) and
-[mxmlSetCDATAf](@@) functions:
+使用 [mxmlNewCDATA](@@) 和 [mxmlNewCDATAf](@@) 函数创建 CDATA（`MXML_TYPE_CDATA`）节点，并使用 [mxmlSetCDATA](@@) 和 [mxmlSetCDATAf](@@) 函数设置 CDATA 值：
 
 ```c
 mxml_node_t *
@@ -749,12 +612,10 @@ mxmlSetCDATAf(mxml_node_t *node, const char *format, ...);
 ```
 
 
-Comment Nodes
+注释节点
 -------------
 
-Comment \(`MXML_TYPE_COMMENT`) nodes are created using the [mxmlNewComment](@@)
-and [mxmlNewCommentf](@@) functions and set using the [mxmlSetComment](@@)
-and [mxmlSetCommentf](@@) functions:
+使用 [mxmlNewComment](@@) 和 [mxmlNewCommentf](@@) 函数创建注释（`MXML_TYPE_COMMENT`）节点，并使用 [mxmlSetComment](@@) 和 [mxmlSetCommentf](@@) 函数设置注释值：
 
 ```c
 mxml_node_t *
@@ -770,13 +631,10 @@ void
 mxmlSetCommentf(mxml_node_t *node, const char *format, ...);
 ```
 
-
-Processing Instruction Nodes
+处理指令节点
 ----------------------------
 
-Processing instruction \(`MXML_TYPE_DIRECTIVE`) nodes are created using the
-[mxmlNewDirective](@@) and [mxmlNewDirectivef](@@) functions and set using the
-[mxmlSetDirective](@@) and [mxmlSetDirectivef](@@) functions:
+使用[mxmlNewDirective](@@)和[mxmlNewDirectivef](@@)函数创建处理指令(`MXML_TYPE_DIRECTIVE`)节点，并使用[mxmlSetDirective](@@)和[mxmlSetDirectivef](@@)函数设置：
 
 ```c
 mxml_node_t *node = mxmlNewDirective("xml-stylesheet type=\"text/css\" href=\"style.css\"");
@@ -784,8 +642,7 @@ mxml_node_t *node = mxmlNewDirective("xml-stylesheet type=\"text/css\" href=\"st
 mxml_node_t *node = mxmlNewDirectivef("xml version=\"%s\"", version);
 ```
 
-The [mxmlNewXML](@@) function can be used to create the top-level "xml"
-processing instruction with an associated version number:
+[mxmlNewXML](@@)函数可用于创建顶级的"xml"处理指令，并带有关联的版本号：
 
 ```c
 mxml_node_t *
@@ -793,11 +650,10 @@ mxmlNewXML(const char *version);
 ```
 
 
-Integer Nodes
+整数节点
 -------------
 
-Integer \(`MXML_TYPE_INTEGER`) nodes are created using the [mxmlNewInteger](@@)
-function and set using the [mxmlSetInteger](@@) function:
+使用[mxmlNewInteger](@@)函数创建整数(`MXML_TYPE_INTEGER`)节点，并使用[mxmlSetInteger](@@)函数设置：
 
 ```c
 mxml_node_t *
@@ -808,12 +664,10 @@ mxmlSetInteger(mxml_node_t *node, long integer);
 ```
 
 
-Opaque String Nodes
+不透明字符串节点
 -------------------
 
-Opaque string \(`MXML_TYPE_OPAQUE`) nodes are created using the
-[mxmlNewOpaque](@@) and [mxmlNewOpaquef](@@) functions and set using the
-[mxmlSetOpaque](@@) and [mxmlSetOpaquef](@@) functions:
+使用[mxmlNewOpaque](@@)和[mxmlNewOpaquef](@@)函数创建不透明字符串(`MXML_TYPE_OPAQUE`)节点，并使用[mxmlSetOpaque](@@)和[mxmlSetOpaquef](@@)函数设置：
 
 ```c
 mxml_node_t *
@@ -830,11 +684,10 @@ mxmlSetOpaquef(mxml_node_t *node, const char *format, ...);
 ```
 
 
-Real Number Nodes
+实数节点
 -----------------
 
-Real number \(`MXML_TYPE_REAL`) nodes are created using the [mxmlNewReal](@@)
-function and set using the [mxmlSetReal](@@) function:
+使用[mxmlNewReal](@@)函数创建实数(`MXML_TYPE_REAL`)节点，并使用[mxmlSetReal](@@)函数设置：
 
 ```c
 mxml_node_t *
@@ -845,13 +698,10 @@ mxmlSetReal(mxml_node_t *node, double real);
 ```
 
 
-Text Nodes
+文本节点
 ----------
 
-Whitespace-delimited text string \(`MXML_TYPE_TEXT`) nodes are created using the
-[mxmlNewText](@@) and [mxmlNewTextf](@@) functions and set using the
-[mxmlSetText](@@) and [mxmlSetTextf](@@) functions.  Each text node consists of
-a text string and (leading) whitespace boolean value.
+使用[mxmlNewText](@@)和[mxmlNewTextf](@@)函数创建以空格分隔的文本字符串(`MXML_TYPE_TEXT`)节点，并使用[mxmlSetText](@@)和[mxmlSetTextf](@@)函数设置。每个文本节点包含文本字符串和（前导）空格布尔值。
 
 ```c
 mxml_node_t *
@@ -872,17 +722,14 @@ mxmlSetTextf(mxml_node_t *node, bool whitespace,
 ```
 
 
-Iterating and Indexing the Tree
+遍历和索引树
 ===============================
 
 
-Iterating Nodes
+遍历节点
 ---------------
 
-While the [mxmlFindNode](@@) and [mxmlFindPath](@@) functions will find a
-particular element node, sometimes you need to iterate over all nodes.  The
-[mxmlWalkNext](@@) and [mxmlWalkPrev](@@) functions can be used to iterate
-through the XML node tree:
+虽然[mxmlFindNode](@@)和[mxmlFindPath](@@)函数可以找到特定的元素节点，但有时需要遍历所有节点。可以使用[mxmlWalkNext](@@)和[mxmlWalkPrev](@@)函数来遍历XML节点树：
 
 ```c
 mxml_node_t *
@@ -894,10 +741,7 @@ mxmlWalkPrev(mxml_node_t *node, mxml_node_t *top,
              int descend);
 ```
 
-Depending on the value of the `descend` argument, these functions will
-automatically traverse child, sibling, and parent nodes until the `top` node is
-reached.  For example, the following code will iterate over all of the nodes in
-the sample XML document in the [Using Mini-XML](@) chapter:
+根据`descend`参数的值，这些函数将自动遍历子节点、兄弟节点和父节点，直到达到`top`节点。例如，以下代码将遍历[Using Mini-XML](@)章节中示例XML文档中的所有节点：
 
 ```c
 mxml_node_t *node;
@@ -906,11 +750,11 @@ for (node = xml;
      node != NULL;
      node = mxmlWalkNext(node, xml, MXML_DESCEND_ALL))
 {
-  ... do something ...
+  ... 做些什么 ...
 }
 ```
 
-The nodes will be returned in the following order:
+节点将按以下顺序返回：
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -935,11 +779,10 @@ val8
 ```
 
 
-Indexing
+索引
 --------
 
-The [mxmlIndexNew](@@) function allows you to create an index of nodes for
-faster searching and enumeration:
+[mxmlIndexNew](@@)函数允许创建节点的索引，以便进行更快的搜索和枚举：
 
 ```c
 mxml_index_t *
@@ -947,21 +790,15 @@ mxmlIndexNew(mxml_node_t *node, const char *element,
              const char *attr);
 ```
 
-The `element` and `attr` arguments control which elements are included in the
-index.  If `element` is not `NULL` then only elements with the specified name
-are added to the index.  Similarly, if `attr` is not `NULL` then only elements
-containing the specified attribute are added to the index.  The nodes are sorted
-in the index.
+`element`和`attr`参数控制哪些元素包含在索引中。如果`element`不是`NULL`，则只有具有指定名称的元素会添加到索引中。类似地，如果`attr`不是`NULL`，则只有包含指定属性的元素会添加到索引中。节点在索引中排序。
 
-For example, the following code creates an index of all "id" values in an XML
-document:
+例如，以下代码在XML文档中创建了所有"id"值的索引：
 
 ```c
 mxml_index_t *ind = mxmlIndexNew(xml, NULL, "id");
 ```
 
-Once the index is created, the [mxmlIndexFind](@@) function can be used to find a
-matching node:
+创建索引后，可以使用[mxmlIndexFind](@@)函数查找匹配的节点：
 
 ```c
 mxml_node_t *
@@ -969,14 +806,13 @@ mxmlIndexFind(mxml_index_t *ind, const char *element,
               const char *value);
 ```
 
-For example, the following code will find the element whose "id" string is "42":
+例如，以下代码将找到其"id"字符串为"42"的元素：
 
 ```c
 mxml_node_t *node = mxmlIndexFind(ind, NULL, "42");
 ```
 
-Alternately, the [mxmlIndexReset](@@) and [mxmlIndexEnum](@@) functions can be used to
-enumerate the nodes in the index:
+或者，可以使用[mxmlIndexReset](@@)和[mxmlIndexEnum](@@)函数枚举索引中的节点：
 
 ```c
 mxml_node_t *
@@ -986,7 +822,7 @@ mxml_node_t *
 mxmlIndexEnum(mxml_index_t *ind);
 ```
 
-Typically these functions will be used in a `for` loop:
+通常，这些函数将在`for`循环中使用：
 
 ```c
 mxml_node_t *node;
@@ -995,19 +831,18 @@ for (node = mxmlIndexReset(ind);
      node != NULL;
      node = mxmlIndexEnum(ind))
 {
-  ... do something ...
+  ... 做些什么 ...
 }
 ```
 
-The [mxmlIndexCount](@@) function returns the number of nodes in the index:
+[mxmlIndexCount](@@)函数返回索引中的节点数：
 
 ```c
 size_t
 mxmlIndexGetCount(mxml_index_t *ind);
 ```
 
-Finally, the [mxmlIndexDelete](@@) function frees all memory associated with the
-index:
+最后，[mxmlIndexDelete](@@)函数释放与索引关联的所有内存：
 
 ```c
 void
@@ -1015,29 +850,23 @@ mxmlIndexDelete(mxml_index_t *ind);
 ```
 
 
-Advanced Usage
+高级用法
 ==============
 
 
-Custom Data Types
+自定义数据类型
 -----------------
 
-Mini-XML supports custom data types via load and save callback options.
-Only a single set of callbacks can be active at any time for a `mxml_options_t`
-pointer, however your callbacks can store additional information in order to
-support multiple custom data types as needed.  The `MXML_TYPE_CUSTOM` node type
-identifies custom data nodes.
+Mini-XML通过加载和保存回调选项支持自定义数据类型。每个`mxml_options_t`指针一次只能激活一组回调，但是您的回调可以存储其他信息，以支持根据需要的多个自定义数据类型。`MXML_TYPE_CUSTOM`节点类型标识自定义数据节点。
 
-The [mxmlGetCustom](@@) function retrieves the custom value pointer for a node.
+[mxmlGetCustom](@@)函数检索节点的自定义值指针。
 
 ```c
 const void *
 mxmlGetCustom(mxml_node_t *node);
 ```
 
-Custom \(`MXML_TYPE_CUSTOM`) nodes are created using the [mxmlNewCustom](@@)
-function or using the custom load callback specified using the
-[mxmlOptionsSetCustomCallbacks](@@) function:
+使用[mxmlNewCustom](@@)函数或使用[mxmlOptionsSetCustomCallbacks](@@)函数指定的自定义加载回调创建自定义(`MXML_TYPE_CUSTOM`)节点：
 
 ```c
 typedef void (*mxml_custfree_cb_t)(void *cbdata, void *data);
@@ -1059,23 +888,18 @@ mxmlOptionsSetCustomCallbacks(mxml_option_t *options,
                               void *cbdata);
 ```
 
-The load callback receives the callback data pointer, a pointer to the current
-data node, and a string of opaque character data from the XML source with
-character entities converted to the corresponding UTF-8 characters.  For
-example, if we wanted to support a custom date/time type whose value is encoded
-as "yyyy-mm-ddThh:mm:ssZ" (ISO 8601 format), the load callback would look like
-the following:
+加载回调接收回调数据指针、当前数据节点的指针和从XML源中转换为相应UTF-8字符的不透明字符数据字符串。例如，如果我们想支持一个自定义的日期/时间类型，其值编码为"yyyy-mm-ddThh:mm:ssZ"（ISO 8601格式），则加载回调将如下所示：
 
 ```c
 typedef struct iso_date_time_s
 {
-  unsigned year,    /* Year */
-           month,   /* Month */
-           day,     /* Day */
-           hour,    /* Hour */
-           minute,  /* Minute */
-           second;  /* Second */
-  time_t   unix;    /* UNIX time */
+  unsigned year,    /* 年 */
+           month,   /* 月 */
+           day,     /* 日 */
+           hour,    /* 时 */
+           minute,  /* 分 */
+           second;  /* 秒 */
+  time_t   unix;    /* UNIX时间 */
 } iso_date_time_t;
 
 bool
@@ -1085,13 +909,13 @@ custom_load_cb(void *cbdata, mxml_node_t *node, const char *data)
   struct tm tmdata;
 
  /*
-  * Allocate data structure...
+  * 分配数据结构...
   */
 
   dt = calloc(1, sizeof(iso_date_time_t));
 
  /*
-  * Try reading 6 unsigned integers from the data string...
+  * 尝试从数据字符串中读取6个无符号整数...
   */
 
   if (sscanf(data, "%u-%u-%uT%u:%u:%uZ", &(dt->year),
@@ -1099,8 +923,7 @@ custom_load_cb(void *cbdata, mxml_node_t *node, const char *data)
              &(dt->minute), &(dt->second)) != 6)
   {
    /*
-    * Unable to read numbers, free the data structure and
-    * return an error...
+    * 无法读取数字，释放数据结构并返回错误...
     */
 
     free(dt);
@@ -1109,7 +932,7 @@ custom_load_cb(void *cbdata, mxml_node_t *node, const char *data)
   }
 
  /*
-  * Range check values...
+  * 检查值的范围...
   */
 
   if (dt->month < 1 || dt->month > 12 ||
@@ -1119,7 +942,7 @@ custom_load_cb(void *cbdata, mxml_node_t *node, const char *data)
       dt->second < 0 || dt->second > 60)
   {
    /*
-    * Date information is out of range...
+    * 日期信息超出范围...
     */
 
     free(dt);
@@ -1128,7 +951,7 @@ custom_load_cb(void *cbdata, mxml_node_t *node, const char *data)
   }
 
  /*
-  * Convert ISO time to UNIX time in seconds...
+  * 将ISO时间转换为UNIX时间（以秒为单位）...
   */
 
   tmdata.tm_year = dt->year - 1900;
@@ -1141,29 +964,22 @@ custom_load_cb(void *cbdata, mxml_node_t *node, const char *data)
   dt->unix = gmtime(&tmdata);
 
  /*
-  * Assign custom node data and free callback function/data...
+  * 分配自定义节点数据和释放回调函数/数据...
   */
 
   mxmlSetCustom(node, data, custom_free_cb, cbdata);
 
  /*
-  * Return with no errors...
+  * 无错误返回...
   */
 
   return (true);
 }
 ```
 
-The function itself can return `true` on success or `false` if it is unable to
-decode the custom data or the data contains an error.  Custom data nodes contain
-a `void` pointer to the allocated custom data for the node and a pointer to a
-destructor function which will free the custom data when the node is deleted.
-In this example, we use the standard `free` function since everything is
-contained in a single calloc'd block.
+函数本身在成功时返回`true`，如果无法解码自定义数据或数据包含错误，则返回`false`。自定义数据节点包含指向节点的分配的自定义数据的`void`指针和指向析构函数的指针，该析构函数将在删除节点时释放自定义数据。在本例中，我们使用标准的`free`函数，因为所有内容都包含在一个单独的`calloc`块中。
 
-The save callback receives the node pointer and returns an allocated string
-containing the custom data value.  The following save callback could be used for
-our ISO date/time type:
+保存回调函数接收节点指针并返回一个分配的字符串，其中包含自定义数据值。以下保存回调函数可以用于我们的ISO日期/时间类型：
 
 ```c
 char *
@@ -1184,8 +1000,7 @@ custom_save_cb(void *cbdata, mxml_node_t *node)
 }
 ```
 
-You register these callback functions using the
-[mxmlOptionsSetCustomCallbacks](@@) function:
+您可以使用`mxmlOptionsSetCustomCallbacks`函数注册这些回调函数：
 
 ```c
 mxmlOptionsSetCustomCallbacks(options, custom_load_cb,
@@ -1193,47 +1008,36 @@ mxmlOptionsSetCustomCallbacks(options, custom_load_cb,
 ```
 
 
-SAX (Stream) Loading of Documents
+SAX（流）加载文档
 ---------------------------------
 
-Mini-XML supports an implementation of the Simple API for XML (SAX) which allows
-you to load and process an XML document as a stream of nodes.  Aside from
-allowing you to process XML documents of any size, the Mini-XML implementation
-also allows you to retain portions of the document in memory for later
-processing.
+Mini-XML支持Simple API for XML（SAX）的实现，允许您将XML文档作为节点流加载和处理。除了允许您处理任意大小的XML文档外，Mini-XML实现还允许您在内存中保留文档的部分以供以后处理。
 
-The mxmlLoadXxx functions support a SAX option that is enabled by setting a
-callback function and data pointer with the [mxmlOptionsSetSAXCallback](@@)
-function.  The callback function receives the data pointer you supplied, the
-node, and an event code and returns `true` to continue processing or `false`
-to stop:
+mxmlLoadXxx函数支持通过设置回调函数和数据指针来启用SAX选项，使用[mxmlOptionsSetSAXCallback](@@)函数。回调函数接收您提供的数据指针、节点和事件代码，并返回`true`以继续处理或返回`false`以停止：
 
 ```c
 bool
 sax_cb(void *cbdata, mxml_node_t *node,
        mxml_sax_event_t event)
 {
-  ... do something ...
+  ... 做一些操作 ...
 
-  // Continue processing...
+  // 继续处理...
   return (true);
 }
 ```
 
-The event will be one of the following:
+事件将是以下之一：
 
-- `MXML_SAX_EVENT_CDATA`: CDATA was just read.
-- `MXML_SAX_EVENT_COMMENT`: A comment was just read.
-- `MXML_SAX_EVENT_DATA`: Data (integer, opaque, real, or text) was just read.
-- `MXML_SAX_EVENT_DECLARATION`: A declaration was just read.
-- `MXML_SAX_EVENT_DIRECTIVE`: A processing directive/instruction was just read.
-- `MXML_SAX_EVENT_ELEMENT_CLOSE` - A close element was just read \(`</element>`)
-- `MXML_SAX_EVENT_ELEMENT_OPEN` - An open element was just read \(`<element>`)
+- `MXML_SAX_EVENT_CDATA`：刚刚读取了CDATA。
+- `MXML_SAX_EVENT_COMMENT`：刚刚读取了注释。
+- `MXML_SAX_EVENT_DATA`：刚刚读取了数据（整数、不透明、实数或文本）。
+- `MXML_SAX_EVENT_DECLARATION`：刚刚读取了声明。
+- `MXML_SAX_EVENT_DIRECTIVE`：刚刚读取了处理指令/指令。
+- `MXML_SAX_EVENT_ELEMENT_CLOSE` - 刚刚读取了关闭元素（`</element>`）
+- `MXML_SAX_EVENT_ELEMENT_OPEN` - 刚刚读取了打开元素（`<element>`）
 
-Elements are *released* after the close element is processed.  All other nodes
-are released after they are processed.  The SAX callback can *retain* the node
-using the [mxmlRetain](@@) function.  For example, the following SAX callback
-will retain all nodes, effectively simulating a normal in-memory load:
+在处理完关闭元素后，元素将被*释放*。其他所有节点在处理完后将被释放。SAX回调可以使用[mxmlRetain](@@)函数*保留*节点。例如，以下SAX回调将保留所有节点，有效地模拟了正常的内存加载：
 
 ```c
 bool
@@ -1246,11 +1050,7 @@ sax_cb(void *cbdata, mxml_node_t *node, mxml_sax_event_t event)
 }
 ```
 
-More typically the SAX callback will only retain a small portion of the document
-that is needed for post-processing.  For example, the following SAX callback
-will retain the title and headings in an XHTML file.  It also retains the
-(parent) elements like `<html>`, `<head>`, and `<body>`, and processing
-directives like  `<?xml ... ?>` and declarations like `<!DOCTYPE ... >`:
+更典型的情况是，SAX回调只会保留文档的一小部分，以供后续处理。例如，以下SAX回调将保留XHTML文件中的标题和标题。它还保留（父）元素，如`<html>`，`<head>`和`<body>`，以及处理指令，如`<?xml ... ?>`和声明，如`<!DOCTYPE ... >`：
 
 ```c
 bool
@@ -1260,7 +1060,7 @@ sax_cb(void *cbdata, mxml_node_t *node,
   if (event == MXML_SAX_ELEMENT_OPEN)
   {
    /*
-    * Retain headings and titles...
+    * 保留标题和标题...
     */
 
     const char *element = mxmlGetElement(node);
@@ -1286,8 +1086,7 @@ sax_cb(void *cbdata, mxml_node_t *node,
     if (mxmlGetRefCount(mxmlGetParent(node)) > 1)
     {
      /*
-      * If the parent was retained, then retain this data
-      * node as well.
+      * 如果父节点被保留，则也保留此数据节点。
       */
 
       mxmlRetain(node);
@@ -1298,10 +1097,7 @@ sax_cb(void *cbdata, mxml_node_t *node,
 }
 ```
 
-The resulting skeleton document tree can then be searched just like one loaded
-without the SAX callback function.  For example, a filter that reads an XHTML
-document from stdin and then shows the title and headings in the document would
-look like:
+然后，可以像加载没有SAX回调函数的文档一样搜索生成的骨架文档树。例如，从stdin读取一个XHTML文档的过滤器，然后显示文档中的标题和标题：
 
 ```c
 mxml_options_t *options;
@@ -1334,7 +1130,7 @@ mxmlDelete(xml);
 mxmlOptionsDelete(options);
 ```
 
-The `print_children` function is:
+`print_children`函数如下：
 
 ```c
 void
@@ -1361,16 +1157,12 @@ print_children(mxml_node_t *parent)
 ```
 
 
-User Data
+用户数据
 ---------
 
-Each node has an associated user data pointer that can be used to store useful
-information for your application.  The memory used by the data pointer is *not*
-managed by Mini-XML so it is up to you to free it as necessary.
+每个节点都有一个关联的用户数据指针，可以用于存储应用程序的有用信息。数据指针使用的内存由Mini-XML*不*管理，因此您需要根据需要释放它。
 
-The [mxmlSetUserData](@@) function sets any user (application) data associated
-with the node while the [mxmlGetUserData](@@) function gets any user
-(application) data associated with the node:
+[mxmlSetUserData](@@)函数设置与节点关联的任何用户（应用程序）数据，而[mxmlGetUserData](@@)函数获取与节点关联的任何用户（应用程序）数据：
 
 ```c
 void *
@@ -1381,53 +1173,40 @@ mxmlSetUserData(mxml_node_t *node, void *user_data);
 ```
 
 
-Memory Management
+内存管理
 -----------------
 
-Nodes support reference counting to manage memory usage.  The [mxmlRetain](@@)
-and [mxmlRelease](@@) functions increment and decrement a node's reference
-count, respectively.  When the reference count goes to zero, [mxmlRelease](@@)
-calls [mxmlDelete](@@) to actually free the memory used by the node tree.  New
-nodes start with a reference count of `1`.  You can get a node's current
-reference count using the [mxmlGetRefCount](@@) function.
+节点支持引用计数以管理内存使用。[mxmlRetain](@@)和[mxmlRelease](@@)函数分别增加和减少节点的引用计数。当引用计数变为零时，[mxmlRelease](@@)调用[mxmlDelete](@@)来实际释放节点树使用的内存。新节点的引用计数从`1`开始。您可以使用[mxmlGetRefCount](@@)函数获取节点的当前引用计数。
 
-Strings can also support different kinds of memory management.  The default is
-to use the standard C library strdup and free functions.  To use alternate an
-alternate mechanism, call the [mxmlSetStringCallbacks](@@) function to set
-string copy and free callbacks.  The copy callback receives the callback data
-pointer and the string to copy, and returns a new string that will persist for
-the life of the XML data.  The free callback receives the callback data pointer
-and the copied string and potentially frees the memory used for it.  For
-example, the following code implements a simple string pool that eliminates
-duplicate strings:
+字符串还可以支持不同类型的内存管理。默认情况下，使用标准C库的strdup和free函数。要使用其他机制，请调用[mxmlSetStringCallbacks](@@)函数设置字符串复制和释放回调。复制回调接收回调数据指针和要复制的字符串，并返回一个在XML数据的生命周期内将持续存在的新字符串。释放回调接收回调数据指针和复制的字符串，并可能释放用于它的内存。例如，以下代码实现了一个简单的字符串池，消除了重复字符串：
 
 ```c
 typedef struct string_pool_s
 {
-  size_t num_strings;   // Number of strings
-  size_t alloc_strings; // Allocated strings
-  char   **strings;      // Array of strings
+  size_t num_strings;   // 字符串数量
+  size_t alloc_strings; // 分配的字符串数量
+  char   **strings;      // 字符串数组
 } string_pool_t;
 
 char *
 copy_string(string_pool_t *pool, const char *s)
 {
-  size_t i;     // Looping var
-  char   *news; // Copy of string
+  size_t i;     // 循环变量
+  char   *news; // 字符串的副本
 
 
-  // See if the string is already in the pool...
+  // 检查字符串是否已经在池中...
   for (i = 0; i < pool->num_strings; i ++)
   {
     if (!strcmp(pool->strings[i], s))
       return (pool->strings[i]);
   }
 
-  // Not in the pool, add new string
+  // 不在池中，添加新字符串
   if (pool->num_strings >= pool->alloc_strings)
   {
-    // Expand the string pool...
-    char **temp; // New strings array
+    // 扩展字符串池...
+    char **temp; // 新字符串数组
 
     temp = realloc(pool->strings,
                    (pool->alloc_strings + 32) *
@@ -1449,13 +1228,13 @@ copy_string(string_pool_t *pool, const char *s)
 void
 free_string(string_pool_t *pool, char *s)
 {
-  // Do nothing here...
+  // 这里什么也不做...
 }
 
 void
 free_all_strings(string_pool_t *pool)
 {
-  size_t i; // Looping var
+  size_t i; // 循环变量
 
 
   for (i = 0; i < pool->num_strings; i ++)
@@ -1465,59 +1244,44 @@ free_all_strings(string_pool_t *pool)
 
 ...
 
-// Setup the string pool...
+// 设置字符串池...
 string_pool_t pool = { 0, 0, NULL };
 
 mxmlSetStringCallbacks((mxml_strcopy_cb_t)copy_string,
                        (mxml_strfree_cb_t)free_string,
                        &pool);
 
-// Load an XML file...
+// 加载XML文件...
 mxml_node_t *xml;
 
 xml = mxmlLoadFilename(/*top*/NULL, /*options*/NULL,
                        "example.xml");
 
-// Process the XML file...
+// 处理XML文件...
 ...
 
-// Free memory used by the XML file...
+// 释放XML文件使用的内存...
 mxmlDelete(xml);
 
-// Free all strings in the pool...
+// 释放池中的所有字符串...
 free_all_strings(&pool);
 ```
 
 
-Migrating from Mini-XML v3.x
-============================
+从Mini-XML v3.x迁移到v4.0时进行了以下不兼容的API更改：
 
-The following incompatible API changes were made in Mini-XML v4.0:
-
-- Load and save callbacks and options are now managed using `mxml_options_t`
-  values.
-- The mxmlSAXLoadXxx functions have been removed in favor of setting the SAX
-  callback function and data pointers of the `mxml_options_t` value prior to
-  calling the corresponding mxmlLoadXxx functions.
-- SAX events are now named `MXML_SAX_EVENT_foo` instead of `MXML_SAX_foo`.
-- SAX callbacks now return a boolean value.
-- Node types are now named `MXML_TYPE_foo` instead of `MXML_foo`.
-- Descend values are now normalized to `MXML_DESCEND_ALL`, `MXML_DESCEND_FIRST`,
-  and `MXML_DESCEND_NONE`.
-- Functions that returned `0` on success and `-1` on error now return `true` on
-  success and `false` on error.
-- CDATA nodes ("`<![CDATA[...]]>`") now have their own type (`MXML_TYPE_CDATA`).
-- Comment nodes ("`<!-- ... -->`") now have their own type
-  (`MXML_TYPE_COMMENT`).
-- Declaration nodes ("`<!...>`") now have their own type
-  (`MXML_TYPE_DECLARATION`).
-- Element attributes are now cleared with the [mxmlElementClearAttr](@@)
-  function instead of mxmlElementDeleteAttr.
-- Processing instruction/directive nodes ("`<?...?>`") now have their own type
-  (`MXML_TYPE_DIRECTIVE`).
-- Integer nodes (`MXML_TYPE_INTEGER`) now use the `long` type.
-- Text nodes (`MXML_TYPE_TEXT`) now use the `bool` type for the whitespace
-  value.
-- Custom node callbacks are now set using the
-  [mxmlOptionsSetCustomCallbacks](@@) function instead of the thread-global
-  mxmlSetCustomHandlers function.
+- 现在使用`mxml_options_t`值来管理加载和保存回调函数和选项。
+- 移除了mxmlSAXLoadXxx函数，而是在调用相应的mxmlLoadXxx函数之前设置`mxml_options_t`值的SAX回调函数和数据指针。
+- SAX事件现在被命名为`MXML_SAX_EVENT_foo`，而不是`MXML_SAX_foo`。
+- SAX回调现在返回布尔值。
+- 节点类型现在被命名为`MXML_TYPE_foo`，而不是`MXML_foo`。
+- 下降值现在被规范化为`MXML_DESCEND_ALL`、`MXML_DESCEND_FIRST`和`MXML_DESCEND_NONE`。
+- 在成功时返回`0`、错误时返回`-1`的函数现在在成功时返回`true`，错误时返回`false`。
+- CDATA节点（"`<![CDATA[...]]>`"）现在有自己的类型（`MXML_TYPE_CDATA`）。
+- 注释节点（"`<!-- ... -->`"）现在有自己的类型（`MXML_TYPE_COMMENT`）。
+- 声明节点（"`<!...>`"）现在有自己的类型（`MXML_TYPE_DECLARATION`）。
+- 元素属性现在使用[mxmlElementClearAttr](@@)函数清除，而不是mxmlElementDeleteAttr。
+- 处理指令/指示节点（"`<?...?>`"）现在有自己的类型（`MXML_TYPE_DIRECTIVE`）。
+- 整数节点（`MXML_TYPE_INTEGER`）现在使用`long`类型。
+- 文本节点（`MXML_TYPE_TEXT`）现在使用`bool`类型表示空白值。
+- 现在使用[mxmlOptionsSetCustomCallbacks](@@)函数设置自定义节点回调，而不是线程全局的mxmlSetCustomHandlers函数。
